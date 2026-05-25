@@ -1,0 +1,81 @@
+{
+  "adr": "ADR-012",
+  "task": "Journal Pipeline Quality Overhaul - Model Selection & E2A Architecture",
+  "condition": "E (layered retrieval)",
+  "judge": "claude-opus-4-7",
+  "judged_at": "2026-05-25",
+  "conditions": {
+    "opus_e": {
+      "model": "claude-opus-4-7",
+      "file": "condition-e/ADR-012.md",
+      "lines": 245,
+      "scores": {
+        "technical_correctness": 1.0,
+        "citation_of_prior_art": 1.0,
+        "completeness": 1.0,
+        "conciseness": 0.5,
+        "pattern_adoption": 1.0
+      },
+      "composite": 0.90,
+      "notes": {
+        "technical_correctness": "All technical claims match GT precisely. Adds accurate detail: extraction_schema.py file paths, judge schema recomputes overall_pass, typed memory fact_ids. VW-276 (3872 fabricated entries), VW-279 (443 replay) correctly cited. No errors.",
+        "citation_of_prior_art": "Deepest citations of all three: ADR-010, ADR-011, VW-6/30/33/69/276/279, Vectara, arXiv:2410.06520v1. Typed memory sessions (ec1691bb, af5afaf7) with fact_ids (2212, 2213, 3854). Exceeds GT's own reference list.",
+        "completeness": "All GT sections fully covered. Adds marginal judge routing (scores 5-7 get revision loop), implementation file references, typed memory provenance. Nothing missing from GT.",
+        "conciseness": "Roughly GT length (245 vs 256 lines) but typed memory references and judge schema detail add bulk beyond what the ADR needs. Accurate but somewhat verbose in attribution sections.",
+        "pattern_adoption": "Perfect ADR format. Proper frontmatter (vault-path, type, tags). Numbered decisions, structured consequences (positive/negative/risks), alternatives, 5-phase plan, authored-by footer."
+      }
+    },
+    "sonnet_e": {
+      "model": "claude-sonnet-4-5",
+      "file": "condition-e-sonnet/ADR-012.md",
+      "lines": 284,
+      "scores": {
+        "technical_correctness": 1.0,
+        "citation_of_prior_art": 0.95,
+        "completeness": 1.0,
+        "conciseness": 1.0,
+        "pattern_adoption": 1.0
+      },
+      "composite": 0.99,
+      "notes": {
+        "technical_correctness": "All core claims match GT. Accurate enrichments: Qwen3-14B context window ~25-30K (GT omits), ADR-011 preset specifics (0.4/0.5/0.6/0.7/0.9), JSONL corpus stats (94 files, 875MB, 50K median). No errors.",
+        "citation_of_prior_art": "Strong: ADR-010, ADR-011, HLD-04 (unique), VW-6/30/33, Vectara, arXiv, RAGAS (2023), Postgres facts (af5afaf7). Missing VW-69/276/279 (post-ADR events). HLD-04 reference is a good addition GT lacks. Slightly fewer forward-looking refs than Opus.",
+        "completeness": "All GT sections comprehensively covered. Adds context-window risk with chunking mitigation, Prometheus metrics for quality gate, ADR-011 preset data. Implementation plan as table with effort estimates. No gaps.",
+        "conciseness": "284 lines, slightly over GT (256), but high information density throughout. Every section earns its space. Quantitative additions (94 JSONL files, ADR-011 presets) are signal not noise. Well-structured with clear horizontal-rule boundaries.",
+        "pattern_adoption": "Full ADR format. Frontmatter includes 'supersedes:' field in YAML metadata (unique, good practice). Numbered decisions, structured consequences with risks, alternatives with clear verdicts, phased implementation table. Clean typography."
+      }
+    },
+    "haiku_e": {
+      "model": "claude-haiku-3-5",
+      "file": "condition-e-haiku/ADR-012.md",
+      "lines": 372,
+      "scores": {
+        "technical_correctness": 1.0,
+        "citation_of_prior_art": 0.85,
+        "completeness": 0.95,
+        "conciseness": 0.5,
+        "pattern_adoption": 1.0
+      },
+      "composite": 0.86,
+      "notes": {
+        "technical_correctness": "All core claims accurate. Worked JSON extraction example is both correct and useful. VW-276 data (3872 files, 77%) cited accurately. Alternative E (Groq) is a reasonable addition not in GT. No factual errors.",
+        "citation_of_prior_art": "Adequate: ADR-010, VW-6/30/33/276, Vectara, arXiv. Blog S3E2 cross-reference is unique. Missing ADR-011, VW-69, VW-279, typed memory sessions, HLD references. Shallower citation depth than Opus or Sonnet.",
+        "completeness": "All GT sections present. 6 decisions, 5 alternatives (adds Groq/external), 5 phases. Appendix with success criteria checklist is a useful addition. Minor gap: less depth on E2A hallucination prevention mechanism vs GT. Otherwise comprehensive.",
+        "conciseness": "372 lines, notably over GT (256). Worked JSON example +30 lines, appendix +15, repetitive severity restatements. Fabrication severity restated 3+ times across sections. Good content but would benefit from tightening.",
+        "pattern_adoption": "Proper ADR format. Frontmatter with extra useful tags (llm, hallucination, e2a-architecture). Numbered decisions, structured consequences, phased implementation. Appendix success criteria is a good practice addition. Updated-date footer note shows living-doc awareness."
+      }
+    }
+  },
+  "ranking": [
+    {"rank": 1, "model": "sonnet_e", "composite": 0.99, "rationale": "Highest composite. Best balance of completeness and conciseness. Accurate enrichments (context window risk, ADR-011 presets, HLD-04 ref) without bloat. Clean structure."},
+    {"rank": 2, "model": "opus_e", "composite": 0.90, "rationale": "Deepest citations (typed memory fact_ids, VW-279 replay). Penalized only for verbosity in attribution sections that add bulk without proportional ADR value."},
+    {"rank": 3, "model": "haiku_e", "composite": 0.86, "rationale": "Technically correct with useful worked example and success criteria appendix. Penalized for 45% length overshoot and repetitive severity framing. Shallower citation depth."}
+  ],
+  "haiku_e_vs_opus_a": {
+    "opus_a_composite": 0.51,
+    "haiku_e_composite": 0.86,
+    "delta": 0.35,
+    "haiku_e_beats_opus_a": true,
+    "interpretation": "Haiku+E (0.86) beats Opus+A (0.51) by +0.35. Condition E (layered retrieval) lifts even the smallest model well above Opus without memory. The retrieval context provides sufficient grounding for Haiku to produce a technically correct, well-structured ADR. Memory/retrieval condition matters more than model size for this task."
+  }
+}

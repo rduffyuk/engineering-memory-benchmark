@@ -1,0 +1,87 @@
+{
+  "adr": "ADR-012",
+  "ground_truth_words": 1674,
+  "conditions": {
+    "A": {
+      "words": 2365,
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.25,
+      "completeness": 0.86,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.6,
+      "notes": "Condition A (no memory) chose Qwen2.5 7B Instruct instead of the ground truth's Qwen3-14B — a significant technical divergence (wrong model generation and wrong parameter count). Names it 'Extract-Anchor-Author' rather than 'Extract-then-Abstract'. Proposes temperature 0.1 for extraction (ground truth: 0.3). Fabricates a 'Mistral 7B Instruct v0.3' fallback not in ground truth. Missing: fabrication evidence table (session_20260207_163955), OTEL deprecation decision (MIN_OTEL_EVENTS = 999), LLM-as-Judge quality gate, cost analysis section. Jira field uses placeholder 'VW-XX'. Only 6 of 16 factual claims are cited (external references only — HaluEval, Qwen2.5 Technical Report, DeepSeek R1 Technical Report, ADR-001, VW-62, VW-20). No references to VW-6, VW-30, or VW-33 in Context. Verbose with repeated anchor concept across multiple paragraphs."
+    },
+    "B": {
+      "words": 2682,
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.79,
+      "completeness": 1.0,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.8,
+      "notes": "Condition B (semantic search) correctly identifies Qwen3-14B-AWQ and provides rich prior art citations: 8 Jira tickets (VW-6, VW-7, VW-20, VW-30, VW-62, VW-68), 2 ADRs (ADR-010, ADR-011), 4 vault documents, and the HLD. References October 2025 model evaluation matrix, VW-68 rearchitecture, HLD-Aware Architecture Review Pipeline. Renames E2A to 'Extract-Aggregate-Articulate' (architecturally equivalent). However: uses VW-20 not VW-33 as Jira reference, adds a 'Neutral' consequences subsection not in ground truth, verbose Alternatives section. Missing: specific fabrication evidence table, cost analysis section, LLM-as-Judge quality gate (proposes rule-based verification instead)."
+    },
+    "C": {
+      "words": 2852,
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.82,
+      "completeness": 1.0,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.8,
+      "notes": "Condition C (grep+read) is closest to ground truth. Reproduces the fabrication evidence table (session_20260207_163955 with deploy_watchdog.sh). Correctly uses VW-33. Includes all 5 ground truth decision sections: OTEL deprecation, model replacement, E2A pipeline, LLM-as-Judge, parameter adjustment. Includes cost analysis ($0.78/month). References concrete code artifacts (extraction_schema.py, judge_schema.py, llm_backends.py, facts_to_prompt_context(), parse_judge_verdict(), verified_insight_generator.py). Despite being longest, every paragraph advances a distinct point — length comes from higher information density, not repetition."
+    },
+    "D": {
+      "words": 2037,
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.86,
+      "citation_claims": [
+        {"claim": "OTEL synthesis path disabled (memory fact #2212, 2026-05-04)", "cited": true},
+        {"claim": "JSONL transcripts for replay instead of OTEL stream (memory fact #2213)", "cited": true},
+        {"claim": "DeepSeek R1 8B has 14.3% hallucination rate", "cited": true},
+        {"claim": "DeepSeek-R1-Qwen3-8B-AWQ model identifier (memory fact #3092)", "cited": true},
+        {"claim": "spaCy replacing LLM for NER tagging reduced hallucination 75% to 0% (memory fact #3125)", "cited": true},
+        {"claim": "Qwen3:8B showed 62% specificity improvement (memory fact #2196)", "cited": true},
+        {"claim": "Qwen3-14B to 8B swap history (memory facts #4385, #3388, #4458)", "cited": true},
+        {"claim": "Temperature 0.7 too high for factual extraction", "cited": false},
+        {"claim": "Single-shot generation with no verification is current approach", "cited": false},
+        {"claim": "RTX 4080 has 16GB VRAM, vLLM holds exclusive GPU ~15GB", "cited": false},
+        {"claim": "Qwen3-14B-AWQ for extraction, 8B for abstraction (two-model tiered)", "cited": false},
+        {"claim": "ADR-022 Local LLM Hybrid Routing referenced", "cited": true},
+        {"claim": "feedback_verify_concrete_claims_before_prose.md: 6 fabricated specifics caught in draft", "cited": true},
+        {"claim": "feedback_verify_facts_against_prior_episodes.md: blog-level fact-checking", "cited": true},
+        {"claim": "VW-62 Kafka consumer reliability patterns retained", "cited": true},
+        {"claim": "Fabricated-narrative problem flagged (memory fact #3854)", "cited": true},
+        {"claim": "Source anchoring as deterministic JSONL parsing with content hashes", "cited": false},
+        {"claim": "Temperature 0.0 for extraction stage", "cited": false},
+        {"claim": "Cost estimate $15-300/month for full API approach (Alternative C)", "cited": false},
+        {"claim": "NER precedent applies to journal extraction fidelity", "cited": true},
+        {"claim": "Privacy concern: session transcripts should not leave local network", "cited": false}
+      ],
+      "completeness": 0.86,
+      "completeness_checklist": [
+        {"section": "Context", "present": true},
+        {"section": "Decision", "present": true},
+        {"section": "Consequences — Positive", "present": true},
+        {"section": "Consequences — Negative", "present": true},
+        {"section": "Alternatives (>=1)", "present": true},
+        {"section": "Status", "present": true},
+        {"section": "Related links", "present": true},
+        {"section": "Cost analysis", "present": false},
+        {"section": "LLM-as-Judge quality gate", "present": false},
+        {"section": "OTEL deprecation decision", "present": false},
+        {"section": "Implementation plan with phases", "present": false}
+      ],
+      "conciseness": 1.0,
+      "pattern_adoption": 0.6,
+      "pattern_checklist": [
+        {"pattern": "Frontmatter with required fields (title, status, date, type, jira, tags)", "adopted": true},
+        {"pattern": "Status enum value (Proposed/Accepted/Deprecated/Superseded)", "adopted": true},
+        {"pattern": "Alternatives comparison format (labeled with pros/cons/verdict)", "adopted": true},
+        {"pattern": "Wikilink format for cross-references", "adopted": false},
+        {"pattern": "Consequences split into positive/negative subsections", "adopted": true},
+        {"pattern": "Jira field matches ground truth VW-33", "adopted": false},
+        {"pattern": "Ground truth 5-part decision structure (OTEL deprecation, model, E2A, Judge, params)", "adopted": false}
+      ],
+      "notes": "Condition D (agent memory / recall) has the highest citation density of any condition, drawing heavily on numbered memory facts (#2212, #2213, #3092, #3125, #2196, #4385, #3388, #4458, #3854). This gives it unique cross-referencing to platform history: the NER-to-spaCy precedent (75% to 0% hallucination), the OTEL-disable decision timeline, the Qwen3-14B-to-8B swap context, and the blog-draft verification feedback. Technically correct: correctly identifies Qwen3-14B-AWQ for extraction with a novel two-model tiered approach (14B extraction + 8B abstraction), which is a defensible architectural variation — the ground truth uses 14B local + Claude Sonnet API. Uses temperature 0.0 for extraction (ground truth: 0.3) — more aggressive but reasonable for a structured-output task. The three-stage E2A is described as Source Anchoring (deterministic Python) -> Structured Extraction (14B, temp 0.0) -> Narrative Abstraction (8B, temp 0.5), which is architecturally sound and more self-hosted than the ground truth's API-dependent synthesis. HOWEVER: missing four significant ground truth elements — (1) no cost analysis section, (2) no LLM-as-Judge quality gate (replaced by post-generation validation that checks source_refs — similar concept but lighter), (3) no explicit OTEL deprecation decision section (OTEL input path change is mentioned in passing under E2A but not as a standalone decision), (4) no phased implementation plan. Uses VW-62 as Jira reference instead of VW-33. The Related section uses memory fact IDs as citations — a format unique to Condition D that works for traceability but diverges from the ground truth's ADR/Jira/vault-document citation style. At 2037 words it is the most concise of the four conditions while still covering the essential architecture. The Alternatives section is well-structured with clear rejection rationale."
+    }
+  }
+}

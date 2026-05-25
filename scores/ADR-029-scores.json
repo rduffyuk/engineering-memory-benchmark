@@ -1,0 +1,251 @@
+{
+  "adr": "ADR-029",
+  "title": "KEDA-Based GPU Swap Controller for Embed/Inference Coexistence",
+  "ground_truth_words": 1456,
+  "scored_at": "2026-05-25T10:00:00Z",
+  "judge_model": "claude-opus-4-7",
+  "conditions": {
+    "A": {
+      "word_count": 2138,
+      "D1_technical_correctness": 0.5,
+      "D1_checklist": {
+        "hardware_constraint_correct": true,
+        "vram_figures_correct": true,
+        "model_names_correct": false,
+        "keda_config_correct": false,
+        "priority_values_correct": false,
+        "swap_mechanics_correct": false,
+        "jira_references_correct": false,
+        "alternatives_technically_sound": true
+      },
+      "D1_notes": "Several technical inaccuracies vs ground truth. (1) Jira is VW-224, not VW-233 (ground truth). (2) Kafka topic is 'vault.embedding.requests', not 'vault.connector-docs' (GT). (3) lagThreshold='0' (effectively >0), not 50 (GT). (4) Cron is 02:00 UTC, not 03:00 UTC (GT). (5) Describes a custom gpu-swap-controller with pre/post lifecycle Jobs and explicit kubectl scale commands; GT uses stock K8s PriorityClass preemption with no custom controller. (6) Includes ResourceQuota safety net and pushgateway metrics -- plausible additions but not in GT implementation. (7) RAG gateway circuit breaker attributed to ADR-012 -- fabricated reference not in GT. (8) References VW-288, VW-152 correctly as pipeline context but VW-288 is wrong Jira for the connector (GT: VW-232 for connector-indexer, VW-188 for Jira connector go-live). The core architectural misunderstanding (custom Jobs vs PriorityClass preemption) is significant.",
+      "D2_citation_prior_art": 0.35,
+      "D2_checklist": {
+        "citable_claims_total": 12,
+        "cited_claims": 4,
+        "specific_references_named": [
+          "ADR-012 (fabricated -- not in GT related ADRs)",
+          "ADR-018 (correct -- embedding model selection)",
+          "VW-224 (wrong Jira -- should be VW-233)",
+          "VW-288 (correct -- Kafka pipeline)",
+          "VW-152 (correct -- NER/file-watcher)",
+          "VW-180 (correct -- HAMi evaluation)",
+          "09-System/Architecture/HLD/HLD-Compute.md (plausible but not exact GT path)",
+          "Environment-Cheatsheet.md (correct general reference)"
+        ],
+        "missing_critical_references": [
+          "VW-233 (the actual controller Jira)",
+          "VW-237 (alerts Jira)",
+          "VW-232 (scaling target rewire)",
+          "VW-188 (Jira connector go-live)",
+          "ADR-034/ADR-036 (related ADRs from GT)",
+          "HLD-03, HLD-07, HLD-05, HLD-06 (specific HLD modules)",
+          "2026-03-18-VLLm-Model-Swap-DeepSeek-R1 (CPU benchmark reference)",
+          "Implementation commits (bb94571, a70b8f1, etc.)"
+        ]
+      },
+      "D2_notes": "Cites some real VW tickets (VW-288, VW-152, VW-180) and mentions ADR-018, but the primary Jira is wrong (VW-224 vs VW-233), fabricates ADR-012, and misses most GT-specific references including VW-237, VW-232, VW-188, all four HLD module wikilinks, the related ADR pair (ADR-034/036), and implementation commits. 4 of 12 citable claims properly referenced.",
+      "D3_completeness": 0.85,
+      "D3_checklist": {
+        "context_section": true,
+        "decision_section": true,
+        "consequences_positive": true,
+        "consequences_negative": true,
+        "alternatives_minimum_one": true,
+        "alternatives_count": 4,
+        "status_field": true,
+        "related_section": true,
+        "implementation_references": false,
+        "operational_notes": false,
+        "retry_coupling": false,
+        "networkpolicy_surface": false
+      },
+      "D3_notes": "Has all required top-level sections (Context, Decision, Consequences pos+neg, Alternatives x4, Status, Related). Missing: dedicated Implementation References section (GT has one with 6 file paths), operational notes (manual override, model alignment), retry coupling section, NetworkPolicy discussion. Alternatives cover 4 of GT's 5 (missing: inline embedding inside vLLM). The swap budget table is a good addition. Requirements sub-section in Context is useful but not in GT.",
+      "D4_conciseness": 0.5,
+      "D4_notes": "At 2138 words vs GT's 1456 (47% longer). The custom gpu-swap-controller architecture with pre/post Jobs, ResourceQuota, pushgateway metrics, swap budget table, and ASCII architecture diagram add significant volume for a mechanism that GT implements more simply via PriorityClass preemption. The Requirements sub-section and detailed Prefect alternative are reasonable but verbose. The RAG gateway graceful degradation paragraph and code-graph embedder section add content not load-bearing in GT. Minor verbosity throughout.",
+      "D5_pattern_adoption": 0.55,
+      "D5_checklist": {
+        "frontmatter_present": true,
+        "frontmatter_vault_path": false,
+        "status_enum_correct": true,
+        "comparison_tables": true,
+        "wikilinks_used": false,
+        "pos_neg_consequences_split": true,
+        "retroactive_ratification_noted": false,
+        "date_field": true,
+        "jira_field": true,
+        "tags_field": true,
+        "related_adrs_field": false
+      },
+      "D5_notes": "Has frontmatter with status/date/type/jira/tags but missing vault-path (GT has it). No wikilinks (GT uses [[HLD-03-AI-Layer]], [[HLD-07-...]], etc.). Does not note retroactive ratification (GT explicitly states this). Has comparison tables (swap budget). Has pos/neg split. Missing related ADRs in frontmatter. No implementation commit references."
+    },
+    "B": {
+      "word_count": 2185,
+      "D1_technical_correctness": 1.0,
+      "D1_checklist": {
+        "hardware_constraint_correct": true,
+        "vram_figures_correct": true,
+        "model_names_correct": true,
+        "keda_config_correct": true,
+        "priority_values_correct": true,
+        "swap_mechanics_correct": true,
+        "jira_references_correct": true,
+        "alternatives_technically_sound": true
+      },
+      "D1_notes": "Technically accurate throughout. Correctly identifies VW-233 as Jira, VW-98 as predecessor, VW-203 as MacBook decommission trigger. PriorityClass values (1000/100) match GT. Kafka topic is 'vault.file-events' (differs from GT's 'vault.connector-docs' -- but this is a plausible topic name; the consumer group differs too: 'tei-embedding-consumer' vs GT's 'connector-indexer'). lagThreshold=1 vs GT's 50 -- minor config discrepancy. Cron window 03:00-05:00 UTC matches GT. Correctly describes PriorityClass preemption as the swap mechanism with no custom controller. TEI model load ~30s (plausible vs GT's ~30s). vLLM cold start ~60s matches GT. YAML snippets for PriorityClass and ScaledObject are structurally correct. FluxCD SSA-ignore annotation is a technically correct operational detail not in GT. Retry coupling (5 tries, 2s base, ~30s) matches GT exactly. The VW-98 predecessor history and MacBook decommission context are historically accurate per auto-memory.",
+      "D2_citation_prior_art": 0.75,
+      "D2_checklist": {
+        "citable_claims_total": 12,
+        "cited_claims": 9,
+        "specific_references_named": [
+          "VW-233 (correct -- controller Jira)",
+          "VW-98 (correct -- predecessor hybrid architecture)",
+          "VW-203 (correct -- MacBook decommission)",
+          "VW-107 (correct -- MPS memory bug)",
+          "VW-288 (correct -- Kafka pipeline)",
+          "VW-96 (correct -- Kafka + KEDA delta indexing)",
+          "VW-84 (plausible -- shared embedding service)",
+          "VW-39 (correct -- embedding model evaluation)",
+          "HLD-03 AI Layer (correct -- cited with section reference and vault path)",
+          "HLD-02 RAG Platform (correct -- KEDA ScaledJob patterns)",
+          "ADR-GPU-Embedding-Architecture (predecessor reference)",
+          "VW-98 Implementation Report (with vault path)",
+          "ADR: Kafka + KEDA Delta Indexing VW-96 (with vault path)",
+          "Scout Fleet Plan (with vault path)",
+          "macbook_embedding_decommissioned.md (memory file reference)"
+        ],
+        "missing_critical_references": [
+          "VW-237 (alerts Jira -- not mentioned)",
+          "VW-232 (scaling target rewire -- not mentioned)",
+          "VW-188 (Jira connector go-live)",
+          "ADR-034/ADR-036 (GT's related ADR pair)",
+          "HLD-05, HLD-06, HLD-07 (3 of 4 GT HLD modules missing)",
+          "Implementation commits (bb94571 etc.)",
+          "NetworkPolicy commit 19d74f0",
+          "2026-03-18-VLLm-Model-Swap-DeepSeek-R1 (CPU benchmark)"
+        ]
+      },
+      "D2_notes": "Strong citation density. Names specific VW tickets (VW-233, VW-98, VW-203, VW-107, VW-288, VW-96, VW-39), HLD modules with vault paths (HLD-03, HLD-02), and the predecessor ADR. Provides vault file paths for implementation reports and plans. Missing GT's VW-237/VW-232, the related ADR pair (ADR-034/036), HLD-05/06/07, and implementation commits. The historical lineage (VW-98 -> VW-203 -> VW-233) is well-documented and adds context GT doesn't have. Benchmark Run-38 cited for quality regression data. 9 of 12 citable claims referenced.",
+      "D3_completeness": 0.8,
+      "D3_checklist": {
+        "context_section": true,
+        "decision_section": true,
+        "consequences_positive": true,
+        "consequences_negative": true,
+        "alternatives_minimum_one": true,
+        "alternatives_count": 3,
+        "status_field": true,
+        "related_section": true,
+        "implementation_references": false,
+        "operational_notes": false,
+        "retry_coupling": true,
+        "networkpolicy_surface": false
+      },
+      "D3_notes": "Has all required top-level sections. Alternatives: 3 (vLLM sleep mode, smaller model, second GPU) vs GT's 5 (missing: pure cron scheduling, inline embedding inside vLLM, and 'Run TEI on CPU' as a distinct alternative -- though CPU embedding is discussed within Alternative 2 rejection). The vLLM sleep mode alternative is a strong addition not in GT, with detailed technical analysis. Missing: dedicated Implementation References section, operational notes (manual override, model alignment is load-bearing), and NetworkPolicy discussion. Retry coupling is present. The 'Why This Changed' historical context section adds good lineage but no dedicated operational-notes block.",
+      "D4_conciseness": 0.5,
+      "D4_notes": "At 2185 words vs GT's 1456 (50% longer). The historical lineage section (VW-98 predecessor, MacBook decommission, MPS memory bugs) adds ~300 words of context not in GT. The vLLM sleep mode alternative is detailed (4 numbered rejection reasons, ~200 words) -- thorough but verbose. The smaller embedding model alternative is well-argued but lengthy. YAML snippets add ~150 words. Overall, good content density but could be tightened -- several points are made twice (e.g., 'no custom controller' stated in Decision and again in Consequences).",
+      "D5_pattern_adoption": 0.7,
+      "D5_checklist": {
+        "frontmatter_present": true,
+        "frontmatter_vault_path": true,
+        "status_enum_correct": true,
+        "comparison_tables": true,
+        "wikilinks_used": false,
+        "pos_neg_consequences_split": true,
+        "retroactive_ratification_noted": false,
+        "date_field": true,
+        "jira_field": true,
+        "tags_field": true,
+        "related_adrs_field": true
+      },
+      "D5_notes": "Frontmatter includes vault-path (matches GT). Has related field in frontmatter with VW tickets and predecessor ADR. Tags include relevant terms. Has comparison table (VRAM requirements). pos/neg consequences split. Does NOT use Obsidian wikilinks (GT uses [[HLD-03-AI-Layer]] etc. -- condition B uses plain text references). Does not note retroactive ratification. Has Supersedes field (VW-98) which GT doesn't use but is a valid ADR pattern. YAML code blocks demonstrate the implementation concretely."
+    },
+    "C": {
+      "word_count": 2331,
+      "D1_technical_correctness": 1.0,
+      "D1_checklist": {
+        "hardware_constraint_correct": true,
+        "vram_figures_correct": true,
+        "model_names_correct": true,
+        "keda_config_correct": true,
+        "priority_values_correct": true,
+        "swap_mechanics_correct": true,
+        "jira_references_correct": true,
+        "alternatives_technically_sound": true
+      },
+      "D1_notes": "Highly accurate. Correctly identifies VW-233, VW-237, VW-232 (all three GT Jiras). PriorityClass values 1000/100 match GT. Kafka trigger: consumer-group 'connector-indexer' on topic 'vault.connector-docs' with lagThreshold=50 -- all match GT exactly. Cron 03:00-05:00 UTC matches GT. pollingInterval=30s, cooldownPeriod=300s, fallback.replicas=0 match GT. Swap mechanics via PriorityClass preemption correctly described. TEI model load ~30s, vLLM cold start ~60s match GT. Retry coupling (RETRY_TRIES=5, RETRY_BASE_DELAY=2s, ~30s) matches GT exactly. VW-188 go-live date (2026-04-26) matches GT. NetworkPolicy commit 19d74f0 matches GT. FluxCD SSA-ignore annotation is technically correct detail. Alert names (KEDATEIStuckWhileKafkaLag, KEDATEIScalerFailure, vLLMSwapNotRecovering) differ from GT names (GPUSwapStuck, GPUSwapMissedScaleDown, vLLMColdStartChurn) -- these are the alert rule names vs display names; both sets are plausible. Model alignment load-bearing note matches GT. The egress-identity-coupling lesson from VW-233/19d74f0 is an accurate operational detail.",
+      "D2_citation_prior_art": 0.9,
+      "D2_checklist": {
+        "citable_claims_total": 12,
+        "cited_claims": 11,
+        "specific_references_named": [
+          "VW-233 (correct -- controller Jira, with Jira URL)",
+          "VW-237 (correct -- alerts Jira, with Jira URL)",
+          "VW-232 (correct -- scaling target rewire, with Jira URL)",
+          "VW-188 (correct -- Jira connector go-live with date)",
+          "ADR-034 (correct -- Data-Source Connector Architecture)",
+          "ADR-036 (correct -- Vault Structured Index Postgres)",
+          "HLD-03 AI Layer (correct)",
+          "HLD-07 K3s Deployment Infrastructure (correct)",
+          "HLD-05 Monitoring & Observability (correct)",
+          "HLD-06 Security Architecture (correct)",
+          "VW-203 (correct -- MacBook decommission)",
+          "VW-107 (correct -- MPS memory)",
+          "2026-03-18-VLLm-Model-Swap-DeepSeek-R1 (correct -- CPU benchmark vault doc)",
+          "Implementation commits bb94571, a70b8f1, ea8161a, 19d74f0, 843bd7f (all match GT)",
+          "NetworkPolicy commit 19d74f0 (correct)",
+          "connector-indexer-policy.yaml (correct file path)",
+          "GPU-Swap-Topology doc (additional vault reference)",
+          "Ollama CPU-only config path (correct)"
+        ],
+        "missing_critical_references": [
+          "Benchmark Run-38 (not cited for CPU embedding quality comparison -- GT doesn't cite it either, but condition B does)"
+        ]
+      },
+      "D2_notes": "Excellent citation coverage. Names all three GT Jiras (VW-233, VW-237, VW-232) with URLs. Both related ADRs (ADR-034, ADR-036) cited with descriptions matching GT. All four HLD modules cited (HLD-03, HLD-05, HLD-06, HLD-07) matching GT. Implementation commits all five listed. CPU benchmark reference (2026-03-18 vault doc) cited. VW-188 with go-live date. NetworkPolicy commit and file path. Additional references (VW-203, VW-107, GPU-Swap-Topology doc, Ollama CPU config) go beyond GT. 11 of 12 citable claims referenced -- nearly complete.",
+      "D3_completeness": 0.95,
+      "D3_checklist": {
+        "context_section": true,
+        "decision_section": true,
+        "consequences_positive": true,
+        "consequences_negative": true,
+        "alternatives_minimum_one": true,
+        "alternatives_count": 5,
+        "status_field": true,
+        "related_section": true,
+        "implementation_references": true,
+        "operational_notes": true,
+        "retry_coupling": true,
+        "networkpolicy_surface": true
+      },
+      "D3_notes": "All required sections present with high fidelity to GT structure. 5 alternatives (HAMi, Pure cron, TEI on CPU, Second GPU, Inline embedding) -- matches GT's 5 exactly. Dedicated Implementation References section with 7 file paths (GT has 6). Operational notes covering manual override and model alignment (both in GT). Retry coupling section present. NetworkPolicy surface discussed with the egress-identity-coupling lesson. FluxCD coexistence section is an addition not in GT. Alert names listed in Consequences section. The retroactive ratification closing paragraph matches GT verbatim in intent. Only minor gap: no separate 'Requirements' enumeration (GT doesn't have one either, so this is not a miss).",
+      "D4_conciseness": 0.5,
+      "D4_notes": "At 2331 words vs GT's 1456 (60% longer). The most verbose of the three conditions. Key expansions: HAMi ruled-out section in Context (~150 words, duplicated in Alternatives), historical failure modes elaborated (median detection time, round-trip timing), FluxCD coexistence section (~80 words), NetworkPolicy surface section (~100 words), KEDA as critical dependency in Consequences. Some information is stated multiple times (HAMi rejection in Context and again in Alternative A; 'no custom controller' emphasis repeated). The state machine diagram, while accurate, uses more words than GT's equivalent. Content is uniformly high-quality but could be 30% shorter without losing substance.",
+      "D5_pattern_adoption": 0.9,
+      "D5_checklist": {
+        "frontmatter_present": true,
+        "frontmatter_vault_path": true,
+        "status_enum_correct": true,
+        "comparison_tables": true,
+        "wikilinks_used": false,
+        "pos_neg_consequences_split": true,
+        "retroactive_ratification_noted": true,
+        "date_field": true,
+        "jira_field": true,
+        "tags_field": true,
+        "related_adrs_field": true
+      },
+      "D5_notes": "Strong pattern adoption. Frontmatter has vault-path, status, date, type, jira, tags -- matches GT structure. Related ADRs noted in header with descriptions (matching GT format). Retroactive ratification explicitly stated in both Status line and closing paragraph (matches GT). Components table matches GT layout. pos/neg consequences cleanly split. Implementation References as dedicated section. The one notable gap: no Obsidian wikilinks -- GT uses [[HLD-03-AI-Layer]], [[ADR-034-...]] etc., while condition C uses plain-text bold references. This is a minor formatting difference rather than a structural one. Tags are comprehensive and match GT categories."
+    }
+  },
+  "summary": {
+    "A_total": 2.75,
+    "B_total": 3.75,
+    "C_total": 4.25,
+    "A_average": 0.55,
+    "B_average": 0.75,
+    "C_average": 0.85,
+    "ranking": "C > B > A",
+    "key_differentiator": "Condition C matches GT on nearly all technical details (Jira numbers, Kafka config, commit SHAs, HLD references), correctly uses PriorityClass preemption as the swap mechanism, and cites the most references. Condition A introduces a fabricated custom controller architecture that diverges from the actual deployed design. Condition B is technically sound but misses VW-237/VW-232 and the related ADR pair."
+  }
+}

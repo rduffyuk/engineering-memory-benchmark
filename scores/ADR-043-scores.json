@@ -1,0 +1,93 @@
+{
+  "artifact": "ADR-043-Memory-System-Derived-Data-GDPR-Position",
+  "ground_truth": "pilot/ground-truth/ADR-043-Memory-System-Derived-Data-GDPR-Position.md",
+  "scored_at": "2026-05-25",
+  "scorer": "claude-opus-4-7",
+  "dimensions": {
+    "D1_technical_correctness": {
+      "description": "Factual accuracy of regulatory claims, technical mechanisms, and architectural assertions vs ground truth",
+      "scale": "0 | 0.5 | 1.0"
+    },
+    "D2_citation": {
+      "description": "Fraction of ground truth's 15 distinct references that appear in the condition (matched by source identity, not URL exactness)",
+      "scale": "0.0-1.0 ratio",
+      "ground_truth_reference_count": 15
+    },
+    "D3_completeness": {
+      "description": "Fraction of ground truth's 20 substantive decision/consequence/alternative points covered",
+      "scale": "0.0-1.0 ratio",
+      "ground_truth_point_count": 20
+    },
+    "D4_conciseness": {
+      "description": "Appropriate density without unnecessary padding or scope creep",
+      "scale": "0 | 0.5 | 1.0"
+    },
+    "D5_pattern_adoption": {
+      "description": "Adherence to ground truth's ADR template structure (frontmatter, sections, subsections, metadata)",
+      "scale": "0.0-1.0 ratio"
+    }
+  },
+  "conditions": {
+    "A": {
+      "file": "pilot/condition-a/ADR-043.md",
+      "scores": {
+        "D1_technical_correctness": 0.5,
+        "D2_citation": 0.20,
+        "D3_completeness": 0.35,
+        "D4_conciseness": 0.5,
+        "D5_pattern_adoption": 0.50
+      },
+      "notes": {
+        "D1": "Regulatory claims (Hamburg, EDPB, OWASP) are accurate. However, proposes manual deletion propagation order instead of ground truth's ON DELETE CASCADE mechanism — a meaningful architectural divergence. No factual errors in GDPR interpretation but the implementation approach differs.",
+        "D2": "3/15 ground truth references present: Hamburg DPA, EDPB Opinion 28/2024, OWASP AISVS C08. Missing all 12 others including Leaky Thoughts, Brandur Leach, langchain #17499, Mem0, Letta, Crunchy Data, ProvSQL, EDPB CEF 2025, EDPB DSR paper, aicompetence.org, What Should LLMs Forget, Milvus.",
+        "D3": "Covers ~6/20 ground truth points: all-derived-as-personal-data, pgvector embedding deletion, soft-delete rejection, Hamburg rejection. Missing: CASCADE mechanism, 7-day tombstone grace, --immediate flag, insert-time redaction, source JSONL policy, co-location argument, redaction-at-query alt, raw SQL alt, validation checks, revisit triggers, entity-level scope limit, model weights, query audit log, backup retention. Adds non-GT items: 24-month retention, REST API endpoints, PRIVACY.md, Implementation Requirements.",
+        "D4": "156 lines vs 196 GT. Includes unnecessary REST API endpoint definitions and Implementation Requirements backlog. Deletion propagation order table is redundant when CASCADE handles it. Some alternatives are padded.",
+        "D5": "Missing vault-path and jira in frontmatter. Uses separate '## Status' section instead of inline. No Open/Acknowledged limitations section, no Validation SQL section, no When to revisit section, no Decision record metadata. Has Related but not full-URL References section."
+      }
+    },
+    "B": {
+      "file": "pilot/condition-b/ADR-043.md",
+      "scores": {
+        "D1_technical_correctness": 0.5,
+        "D2_citation": 0.20,
+        "D3_completeness": 0.50,
+        "D4_conciseness": 0.5,
+        "D5_pattern_adoption": 0.45
+      },
+      "notes": {
+        "D1": "Detailed codebase references (tables.py, memory_forget.py, falkordb_fanout.py) add specificity. However, Hamburg DPA is incorrectly described as 'January 2024 enforcement action' — ground truth says July 2024 discussion paper. This is a factual error on a key regulatory source. EDPB and OWASP descriptions are accurate. CASCADE mechanism correctly identified.",
+        "D2": "3/15 ground truth references present: Hamburg DPA (wrong date), EDPB Opinion 28/2024, OWASP AISVS C08. Adds Song & Raghunathan 2020 and Carlini et al. 2021 (not in GT). Missing 12 GT references. Has codebase file references (tables.py, etc.) but those map to GT's inline citations, not the References section.",
+        "D3": "Covers ~9/20 GT points: all-derived-as-personal-data, ON DELETE CASCADE, pgvector co-location (brief), tombstone-then-reap (7-day), --immediate flag, redactor at insert, soft-delete rejection, Hamburg rejection, anonymisation rejection, VW-391 link. Missing: source JSONL policy, co-location simplicity argument, redaction-at-query alt, raw SQL alt, validation SQL, revisit triggers, entity-level scope, model weights, query audit log, backup retention. Adds: 24-month retention, MEMORY_RETENTION_MONTHS, RLS policy, Prometheus metric.",
+        "D4": "187 lines vs 196 GT. 'Prior Art in the Codebase' section adds useful context but is non-standard for ADR pattern. Implementation Requirements section is backlog-like. 24-month retention policy adds scope not in GT. Generally structured but with scope creep.",
+        "D5": "Frontmatter missing vault-path, jira, related_plan. Separate '## Status' section. No Open/Acknowledged limitations section, no Validation SQL, no When to revisit, no Decision record metadata. Has 'Prior Art in the Codebase' and 'Implementation Requirements' sections not in GT pattern. Alternatives labeled A/B/C instead of numbered."
+      }
+    },
+    "C": {
+      "file": "pilot/condition-c/ADR-043.md",
+      "scores": {
+        "D1_technical_correctness": 1.0,
+        "D2_citation": 0.47,
+        "D3_completeness": 0.70,
+        "D4_conciseness": 1.0,
+        "D5_pattern_adoption": 0.65
+      },
+      "notes": {
+        "D1": "All regulatory claims match ground truth precisely: Hamburg DPA correctly dated July 2024, described as discussion paper (not enforcement action). EDPB Opinion 28/2024, CEF 2025, OWASP AISVS C08 all accurately described. Technical mechanisms (CASCADE, co-location, tombstone, redaction) match GT. Codebase references include line numbers (tables.py lines 87-130, 164-231) grounding claims in actual implementation. Co-location argument present with DROP SCHEMA CASCADE validation. No factual errors found.",
+        "D2": "7/15 ground truth references present: Hamburg DPA (correct date), EDPB Opinion 28/2024, EDPB CEF 2025, OWASP AISVS C08, Brandur Leach, Leaky Thoughts arXiv:2506.15674, langchain #17499. Missing 8: Mem0, Letta, Crunchy Data, ProvSQL, EDPB DSR paper, aicompetence.org, What Should LLMs Forget arXiv, Milvus. Adds 6 codebase file references as Related items.",
+        "D3": "Covers ~14/20 GT points: all-derived-as-personal-data (3 reasons), ON DELETE CASCADE (with migration reference), pgvector co-location (AGENTS.md invariant, langchain), FalkorDB reconciliation (weekly CronJob, graph-retry topic), 7-day tombstone (sessions.tombstoned_at, reaper CronJob), --immediate flag (Article 12), redaction at insert (regex patterns, arXiv, permanent), source JSONL not auto-deleted, co-location simplicity (DROP SCHEMA), soft-delete rejected (OWASP + Brandur), Hamburg rejected, anonymisation rejected, VW-391 link, entity-level scope. Missing: redaction-at-query alt, raw SQL alt, validation SQL checks, when to revisit, model weights, query audit log.",
+        "D4": "158 lines vs 196 GT — more concise while covering more ground. Every paragraph carries substantive content. No backlog sections, no REST API definitions, no implementation requirements list. High information density. Codebase specificity (line numbers, column names, Kafka topics, regex patterns) is all directly relevant to grounding decisions.",
+        "D5": "Frontmatter includes jira: VW-391 (matching GT). Missing vault-path and related_plan. Context well-structured with sub-sections. Decision has 7 numbered points closely matching GT. Consequences split Positive/Negative. No separate Open/Acknowledged limitations section (some items in Negative). Alternatives numbered 1/2/3. No Validation SQL section, no When to revisit, no Decision record metadata. Related section present but not full-URL References format."
+      }
+    }
+  },
+  "summary": {
+    "ranking": ["C", "B", "A"],
+    "composite_scores": {
+      "A": 0.41,
+      "B": 0.43,
+      "C": 0.76
+    },
+    "composite_method": "unweighted mean of D1-D5",
+    "finding": "Condition C dominates across all 5 dimensions. It is the only condition to score 1.0 on technical correctness (no factual errors, correct Hamburg DPA dating, grounded codebase references) and conciseness (158 lines, zero padding). B's Hamburg DPA misdating (January 2024 enforcement action vs July 2024 discussion paper) is the kind of error that undermines regulatory credibility. A diverges architecturally by proposing manual deletion ordering instead of CASCADE. All three conditions under-cite the ground truth's reference corpus, but C recovers nearly half (7/15) including the most operationally important ones (OWASP, Brandur Leach, langchain)."
+  }
+}

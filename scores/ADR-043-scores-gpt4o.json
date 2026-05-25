@@ -1,0 +1,31 @@
+{
+  "adr": "ADR-043",
+  "judge": "gpt-4o",
+  "scored_at": "2026-05-25T09:51:50",
+  "conditions": {
+    "A": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.0,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.2,
+      "notes": "The ADR is technically correct but lacks specific citations to prior art, which are present in the ground truth. Completeness is low as it misses sections like Consequences, Alternatives, and How to validate. Conciseness is affected by some verbosity. Pattern adoption is low due to missing structured sections and status enum."
+    },
+    "B": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.0,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.2,
+      "notes": "The ADR is technically correct with no factual errors. However, it lacks specific citations of prior art, which affects the citation score. The completeness is low because it misses several sections such as Consequences, Alternatives, and Related. The ADR is somewhat verbose, affecting conciseness. Pattern adoption is low due to missing structured sections and status enumeration."
+    },
+    "C": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.0,
+      "completeness": 0.8333333333333334,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.6,
+      "notes": "The generated ADR lacks specific citations and related links, reducing its completeness and citation score."
+    }
+  }
+}

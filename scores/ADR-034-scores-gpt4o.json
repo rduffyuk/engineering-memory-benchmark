@@ -1,0 +1,31 @@
+{
+  "adr": "ADR-034",
+  "judge": "gpt-4o",
+  "scored_at": "2026-05-25T09:51:39",
+  "conditions": {
+    "A": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.0,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.4,
+      "notes": "The generated ADR is technically correct but lacks specific citations of prior art, such as references to Onyx or other ADRs. It covers Context, Decision, and Consequences but misses sections like Alternatives, Status, and Related. The document is somewhat verbose, with room for conciseness improvements. It partially follows the ADR pattern, missing elements like a status enum and related links."
+    },
+    "B": {
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.0,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.4,
+      "notes": "The generated ADR lacks specific citations and omits several required sections, such as alternatives and related links."
+    },
+    "C": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.0,
+      "completeness": 0.71,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.6,
+      "notes": "The generated ADR is technically correct and provides a detailed architecture for data source connectors. However, it lacks specific citations of prior art, such as references to Onyx or other ADRs. The completeness is slightly lacking as it misses some sections like 'Alternatives Considered' and 'Related' in the expected format. The document is verbose, affecting conciseness, and partially follows the pattern with some deviations in structure and format."
+    }
+  }
+}

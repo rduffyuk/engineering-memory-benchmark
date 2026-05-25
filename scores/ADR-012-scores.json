@@ -1,0 +1,144 @@
+{
+  "adr": "ADR-012",
+  "ground_truth_words": 1674,
+  "conditions": {
+    "A": {
+      "words": 2365,
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.25,
+      "citation_claims": [
+        {"claim": "OTEL events are sparse and insufficient for grounding", "cited": false},
+        {"claim": "DeepSeek R1 8B has ~14.3% hallucination rate from Vectara leaderboard", "cited": false},
+        {"claim": "R1 trained for reasoning/math, misapplied for summarization", "cited": false},
+        {"claim": "Temperature 0.7 is too high for factual summarization", "cited": false},
+        {"claim": "Journal pipeline exists with Kafka infrastructure", "cited": false},
+        {"claim": "JSONL transcripts at ~/.claude/projects/ are rich input", "cited": false},
+        {"claim": "Qwen2.5 7B Instruct as replacement model", "cited": false},
+        {"claim": "HaluEval benchmark referenced for model comparison", "cited": true},
+        {"claim": "Qwen2.5 Technical Report referenced", "cited": true},
+        {"claim": "DeepSeek R1 Technical Report referenced", "cited": true},
+        {"claim": "ADR-001 LinkedIn pipeline as downstream consumer", "cited": true},
+        {"claim": "VW-62 Kafka consumer crash-loop as mechanical predecessor", "cited": true},
+        {"claim": "VW-20 journal quality as original backlog item", "cited": true},
+        {"claim": "Single-shot generation with no verification is current approach", "cited": false},
+        {"claim": "E2A/Extract-Anchor-Author architecture proposed", "cited": false},
+        {"claim": "RTX 4080 has 16GB VRAM", "cited": false}
+      ],
+      "completeness": 0.86,
+      "completeness_checklist": [
+        {"section": "Context", "present": true},
+        {"section": "Decision", "present": true},
+        {"section": "Consequences — Positive", "present": true},
+        {"section": "Consequences — Negative", "present": true},
+        {"section": "Alternatives (>=1)", "present": true},
+        {"section": "Status", "present": true},
+        {"section": "Related links", "present": true}
+      ],
+      "conciseness": 0.5,
+      "pattern_adoption": 0.6,
+      "pattern_checklist": [
+        {"pattern": "Frontmatter with required fields (title, status, date, type, jira, tags)", "adopted": true},
+        {"pattern": "Status enum value (Proposed/Accepted/Deprecated/Superseded)", "adopted": true},
+        {"pattern": "Alternatives comparison format (pros/cons per alternative)", "adopted": true},
+        {"pattern": "Wikilink format for cross-references", "adopted": false},
+        {"pattern": "Consequences split into positive/negative subsections", "adopted": true}
+      ],
+      "notes": "Condition A (no memory) chose Qwen2.5 7B Instruct instead of the ground truth's Qwen3-14B — a significant technical divergence. The model is smaller (7B vs 14B) and from an older generation (Qwen2.5 vs Qwen3). The ADR names it 'Extract-Anchor-Author' rather than 'Extract-then-Abstract', a superficial difference. More substantively, it proposes temperature 0.1 for extraction (ground truth: 0.3) and omits the cost analysis table entirely. It fabricates a 'Mistral 7B Instruct v0.3' fallback that does not appear in the ground truth. The E2A architecture description is verbose and repetitive — the Anchor concept is belabored across multiple paragraphs saying the same thing. No Jira references beyond VW-XX placeholder and Related section mentions. No references to VW-6, VW-30, or VW-33 in the Context section. The fabrication evidence table is absent (the specific session_20260207_163955 audit). Missing the OTEL deprecation decision (MIN_OTEL_EVENTS = 999). Missing the LLM-as-Judge quality gate stage. Missing the cost analysis section. The jira field uses 'VW-XX' instead of VW-33."
+    },
+    "B": {
+      "words": 2682,
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.79,
+      "citation_claims": [
+        {"claim": "Journal streaming pipeline built via VW-6 and VW-30", "cited": true},
+        {"claim": "OTEL events sparse at richness 2/10", "cited": false},
+        {"claim": "DeepSeek R1 8B has 14.3% hallucination rate", "cited": false},
+        {"claim": "VW-68 rearchitecture lowered MIN_OTEL_EVENTS and introduced two-pass consolidator", "cited": true},
+        {"claim": "Platform hallucination baseline: RAG halves hallucination from 43% to 20%", "cited": true},
+        {"claim": "October 2025 model evaluation established 13B as RTX 4080 sweet spot", "cited": true},
+        {"claim": "HLD-Aware Architecture Review Pipeline validated Qwen3-8B-AWQ on same vLLM", "cited": true},
+        {"claim": "ADR-010 established Kafka-based pipeline topology", "cited": true},
+        {"claim": "ADR-011 addressed context window management", "cited": true},
+        {"claim": "VW-62 Kafka consumer crash-loop with 837 restarts", "cited": true},
+        {"claim": "GPU allocation: vLLM holds exclusive GPU ~15GB on RTX 4080", "cited": false},
+        {"claim": "VW-68 fallback chain: Haiku -> Groq Llama 3.3 70B -> local vLLM", "cited": true},
+        {"claim": "AWQ quantization preserves faithfulness better than GPTQ", "cited": false},
+        {"claim": "Qwen3-14B-AWQ proposed as replacement model", "cited": false},
+        {"claim": "Vault reference to AI-Memory-System-Enhancements-Complete.md for hallucination baseline", "cited": true},
+        {"claim": "Vault reference to 01-Guides-Demos-Consolidated-Documentation.md for model evaluation", "cited": true},
+        {"claim": "Vault reference to HLD-Aware-Architecture-Review-Pipeline-Design.md", "cited": true},
+        {"claim": "Implementation report 2026-02-12-VW-68-Journal-Rearchitecture.md", "cited": true},
+        {"claim": "VW-7 tool context extraction from OTEL", "cited": true}
+      ],
+      "completeness": 1.0,
+      "completeness_checklist": [
+        {"section": "Context", "present": true},
+        {"section": "Decision", "present": true},
+        {"section": "Consequences — Positive", "present": true},
+        {"section": "Consequences — Negative", "present": true},
+        {"section": "Alternatives (>=1)", "present": true},
+        {"section": "Status", "present": true},
+        {"section": "Related links", "present": true}
+      ],
+      "conciseness": 0.5,
+      "pattern_adoption": 0.8,
+      "pattern_checklist": [
+        {"pattern": "Frontmatter with required fields (title, status, date, type, jira, tags)", "adopted": true},
+        {"pattern": "Status enum value (Proposed/Accepted/Deprecated/Superseded)", "adopted": true},
+        {"pattern": "Alternatives comparison format (pros/cons per alternative with verdict)", "adopted": true},
+        {"pattern": "Wikilink format for cross-references", "adopted": false},
+        {"pattern": "Consequences split into positive/negative subsections", "adopted": true}
+      ],
+      "notes": "Condition B (semantic search) is the most technically accurate of the three. It correctly identifies Qwen3-14B (matching ground truth) and provides detailed rationale referencing the October 2025 model evaluation matrix, the VW-68 rearchitecture, and the HLD-Aware Architecture Review Pipeline — all real vault documents. It correctly names the E2A pattern as 'Extract-Aggregate-Articulate' (a slight rename but architecturally the same three-phase concept). It cites the most prior art of any condition: 8 Jira tickets (VW-6, VW-7, VW-20, VW-30, VW-62, VW-68), 2 ADRs (ADR-010, ADR-011), 4 vault documents, and the HLD. However, it is verbose — the Alternatives section runs long with detailed pros/cons blocks, and the Context section includes a 'Prior Decisions and Incidents' subsection that, while well-cited, adds significant length. It also includes a 'Neutral' consequences subsection not in the ground truth. Notably, it uses VW-20 as the Jira reference instead of VW-33, which is technically a different ticket (VW-20 is the broader backlog item, VW-33 is this specific ADR's implementation tracker). The Jira field correctly uses VW-20 rather than making one up, but it diverges from ground truth. Missing: the specific fabrication evidence table (session_20260207_163955 audit), the cost analysis section, and the LLM-as-Judge quality gate (it relies on rule-based verification instead). Uses Qwen3-14B-AWQ specifically rather than just Qwen3-14B."
+    },
+    "C": {
+      "words": 2852,
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.82,
+      "citation_claims": [
+        {"claim": "Journal streaming pipeline built via VW-6 and VW-30", "cited": true},
+        {"claim": "OTEL events sparse at richness 2/10 for session_20260207_163955", "cited": true},
+        {"claim": "DeepSeek R1 8B has 14.3% hallucination rate from Vectara leaderboard", "cited": true},
+        {"claim": "V8 prompt redesign from VW-30 improved voice but not content", "cited": true},
+        {"claim": "VW-33 tracks this ADR's implementation", "cited": true},
+        {"claim": "ADR-010 established streaming journal system architecture", "cited": true},
+        {"claim": "Single-shot generation with no verification is current approach", "cited": false},
+        {"claim": "Temperature 0.7 too high, research shows 0.3-0.5 optimal", "cited": false},
+        {"claim": "RTX 4080 has 16GB VRAM, Qwen3-14B fits at ~9GB Q4", "cited": false},
+        {"claim": "E2A pattern from arxiv.org/html/2410.06520v1", "cited": true},
+        {"claim": "LLM-as-Judge achieves 80% agreement with human evaluators at 98% lower cost", "cited": false},
+        {"claim": "Batch API pricing is 50% of standard", "cited": false},
+        {"claim": "extraction_schema.py and judge_schema.py already exist in codebase", "cited": true},
+        {"claim": "llm_backends.py provides multi-backend abstraction with fallback chains", "cited": true},
+        {"claim": "Journal rearchitecture design plan exists in vault", "cited": true},
+        {"claim": "VLLM_MODEL env var references in daily_aggregator.py and vllm_worker.py", "cited": true},
+        {"claim": "verified_insight_generator.py implements ensemble hallucination detection based on SemEval-2025", "cited": true},
+        {"claim": "facts_to_prompt_context() function formats extracted facts for Stage 2", "cited": true},
+        {"claim": "JUDGE_JSON_SCHEMA and parse_judge_verdict() exist in judge_schema.py", "cited": true},
+        {"claim": "MIN_OTEL_EVENTS = 999 to disable OTEL synthesis", "cited": false},
+        {"claim": "VW-30 applied grounding instructions v8/v9 prompt redesigns", "cited": true},
+        {"claim": "deploy_watchdog.sh fabrication in OTEL-path entries", "cited": true}
+      ],
+      "completeness": 1.0,
+      "completeness_checklist": [
+        {"section": "Context", "present": true},
+        {"section": "Decision", "present": true},
+        {"section": "Consequences — Positive", "present": true},
+        {"section": "Consequences — Negative", "present": true},
+        {"section": "Alternatives (>=1)", "present": true},
+        {"section": "Status", "present": true},
+        {"section": "Related links", "present": true}
+      ],
+      "conciseness": 1.0,
+      "pattern_adoption": 0.8,
+      "pattern_checklist": [
+        {"pattern": "Frontmatter with required fields (title, status, date, type, jira, tags)", "adopted": true},
+        {"pattern": "Status enum value (Proposed/Accepted/Deprecated/Superseded)", "adopted": true},
+        {"pattern": "Alternatives comparison format (labeled A/B/C/D with rationale)", "adopted": true},
+        {"pattern": "Wikilink format for cross-references", "adopted": false},
+        {"pattern": "Consequences split into positive/negative subsections", "adopted": true}
+      ],
+      "notes": "Condition C (grep+read) is the closest to ground truth in structure and content. It reproduces the specific fabrication evidence table (session_20260207_163955 with deploy_watchdog.sh, CI pipeline, exit code debugging vs actual blog writing and HuggingFace image generation). It correctly uses VW-33 as the Jira reference. It includes all 5 decision sections from the ground truth: OTEL deprecation, model replacement, E2A pipeline, LLM-as-Judge, and parameter adjustment — the only condition to match the ground truth's full decision structure. It includes the cost analysis table matching the ground truth's $0.78/month estimate. It references concrete codebase artifacts (extraction_schema.py, judge_schema.py, llm_backends.py, facts_to_prompt_context(), parse_judge_verdict(), verified_insight_generator.py) demonstrating actual file-level knowledge. It also references the existing VLLM_MODEL defaults in daily_aggregator.py and vllm_worker.py. Despite being the longest at 2852 words, every paragraph advances a distinct point — the additional length comes from higher information density (code paths, schema details, implementation specifics), not repetition. The only ground truth element it lacks is the arxiv citation for the E2A paper in the Related section (it does cite it inline in the Decision section). No wikilinks used in any condition."
+    }
+  }
+}

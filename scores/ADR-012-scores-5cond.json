@@ -1,0 +1,63 @@
+{
+  "adr": "ADR-012",
+  "judge_model": "claude-opus-4-7",
+  "scored_at": "2026-05-25",
+  "rubric_version": "5cond",
+  "conditions": {
+    "A": {
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.35,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.7,
+      "composite": 0.51,
+      "notes": "Proposes Qwen2.5 7B instead of GT Qwen3-14B. Renames E2A to 'Extract-Anchor-Author'. Missing OTEL deprecation decision, LLM-as-Judge quality gate, cost analysis, and implementation plan. Temperature 0.1 vs GT 0.3. Cites arXiv papers (Qwen2.5, DeepSeek R1) but misses platform-specific refs (ADR-010, VW-6, VW-30, VW-33, Vectara). Alternative B (Claude API) discusses privacy/cost tradeoffs well."
+    },
+    "B": {
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.75,
+      "completeness": 0.6,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.75,
+      "composite": 0.62,
+      "notes": "Rich prior-art citations (ADR-010/011, VW-6/7/20/30/62/68, HLD 3.4, model eval, hallucination baseline, arch review pipeline). Proposes E2A variant ('Extract-Aggregate-Articulate') with 3 phases including deterministic aggregation — architecturally interesting but diverges from GT. Correctly identifies Qwen3-14B-AWQ. Missing LLM-as-Judge, cost analysis, and explicit OTEL deprecation (MIN_OTEL_EVENTS set to 10, not 999). Temperature 0.1/0.4 vs GT 0.3/0.5."
+    },
+    "C": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.8,
+      "completeness": 0.95,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.95,
+      "composite": 0.94,
+      "notes": "Very close to ground truth. All 5 decision components present (OTEL deprecation, Qwen3-14B, E2A pipeline, LLM-as-Judge, inference params). Cost analysis matches ($0.78/month). References existing code artifacts (extraction_schema.py, judge_schema.py, llm_backends.py). Temperature 0.3/0.5 matches GT. 5-phase implementation plan with time estimates. Missing VW-62 in Related. Adds detail about existing code that GT doesn't have (extraction_schema.py verified, facts_to_prompt_context function)."
+    },
+    "D": {
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.4,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.65,
+      "composite": 0.51,
+      "notes": "Uses typed memory facts as citation mechanism (unusual but platform-native). Proposes two-model tier (14B extraction + 8B abstraction) instead of GT's local+API hybrid — keeps everything local, no Claude Sonnet synthesis. Temperature 0.0 for extraction (GT: 0.3). References NER precedent (75% to 0% hallucination) as analogical reasoning. Missing cost analysis, implementation plan, LLM-as-Judge, OTEL deprecation as standalone decision. Three alternatives but only local options considered (no API hybrid)."
+    },
+    "E": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.9,
+      "completeness": 1.0,
+      "conciseness": 1.0,
+      "pattern_adoption": 1.0,
+      "composite": 0.98,
+      "notes": "Most comprehensive condition. All GT decisions present with additional depth: VW-276 (3,872 fabricated entries purged 3 months later), VW-279 (443 sessions replayed post-fix), typed memory decisions as forensic citations. Judge schema details (JudgeVerdict dataclass, parse_judge_verdict recomputation, marginal-case routing). Includes vault-path frontmatter. References VW-69 (session parser JSONL fallback). ADR-011 cited. Cost analysis exact match. Implementation plan with time estimates. Concise despite extra depth — 246 lines vs GT 256."
+    }
+  },
+  "ranking": ["E", "C", "B", "A", "D"],
+  "e_beat_c": true,
+  "e_vs_c_delta": {
+    "technical_correctness": 0.0,
+    "citation_of_prior_art": 0.1,
+    "completeness": 0.05,
+    "conciseness": 0.0,
+    "pattern_adoption": 0.05,
+    "composite": 0.04
+  }
+}

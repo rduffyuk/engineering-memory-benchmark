@@ -1,0 +1,86 @@
+{
+  "artifact": "ADR-034-Data-Source-Connector-Architecture",
+  "ground_truth": "pilot/ground-truth/ADR-034-Data-Source-Connector-Architecture.md",
+  "scored_at": "2026-05-25",
+  "dimensions": {
+    "D1": "Technical correctness (0/0.5/1.0) - factual accuracy of architecture claims",
+    "D2": "Citation (0.0-1.0 ratio) - named references to VW-NNN, ADR-NNN, file paths, document titles",
+    "D3": "Completeness (0.0-1.0) - coverage of ground truth sections and claims",
+    "D4": "Conciseness (0/0.5/1.0) - signal-to-noise, no filler or hallucinated padding",
+    "D5": "Pattern adoption (0.0-1.0) - follows ADR structure, frontmatter, Rootweaver conventions"
+  },
+  "conditions": {
+    "A": {
+      "file": "pilot/condition-a/ADR-034.md",
+      "scores": {
+        "D1_technical_correctness": 0.5,
+        "D2_citation": 0.25,
+        "D3_completeness": 0.7,
+        "D4_conciseness": 0.5,
+        "D5_pattern_adoption": 0.7
+      },
+      "rationale": {
+        "D1": "0.5 - Several technically correct claims (Kafka-native pipeline, KEDA ScaledJob, single Qdrant collection, Onyx BaseConnector pattern) but also inaccuracies: (1) GT specifies Qwen3-Embedding-4B at 2560d in the architecture diagram, Condition A does not specify embedding model in the pipeline; (2) GT's BaseConnector has poll_source() and incremental_sync() as separate methods, Condition A uses a single poll() with SourceCheckpoint which is a different interface design (closer to Onyx's CheckpointedConnector but presented as the primary abstraction); (3) GT specifies vault.connector-docs as the Kafka topic name, Condition A uses connector.documents.raw and connector.chunks.embedded (two-topic design not in GT); (4) Jira polling interval is 5 min in Condition A vs 15 min in GT; (5) Confluence polling interval is 15 min vs 1 hour in GT; (6) Claims Postgres-backed checkpoint persistence which is an implementation detail not in GT (GT uses Prefect scheduled flows, not Postgres watermarks); (7) Introduces DocumentSection with section_type enum and typed content blocks -- a richer model than GT's flat ConnectorDoc. Several architectural choices diverge from GT rather than being wrong per se, but the task is correctness against the ground truth.",
+        "D2": "0.25 - Citations present: ADR-030 (named), ADR-001 (named), VW-62 (named), VW-51/VW-52 (named), Onyx/Danswer github URL, HLD-Ingestion (named). Missing from GT: ADR-013 (SealedSecrets -- GT references this explicitly), ADR-016 (Modular Architecture Documentation), vault_indexer.py path, mcp_bridge.py path (rag_platform/bridges/), federation.py path, specific Kafka topic names (vault.file-events, vault.file-tagged). Jira reference is 'VW-TBD' instead of GT's VW-184. Out of ~12 specific references in GT, Condition A names ~6 but misses the Jira issue number and several key file paths. Ratio: ~6/12 named but VW-TBD is a significant miss = 0.25.",
+        "D3": "0.7 - Covers: Context with current state table, competitive landscape (Glean/Onyx/Rootweaver), Onyx analysis, connector interface (different design but present), unified document model, ingestion pipeline with Kafka, polling scheduler with intervals, retrieval integration with source_filter, implementation phasing (4 phases vs GT's 3), consequences (positive/negative/risks), 3 alternatives considered. Missing: GT's explicit 'Why Kafka Not Direct Writes' section (5 specific reasons), GT's 'Comparison: Current MCP vs Proposed Connectors' table, GT's specific priority table (P0/P1/P2/P3 with value/effort ratings), GT's scheduling table is present but with different intervals, GT's 'Why Not Adopt Onyx Wholesale' section with 5 specific reasons (Condition A has this as Alternative but less detailed). The 4-phase implementation plan adds a Phase 4 (FalkorDB cross-source graph) not in GT.",
+        "D4": "0.5 - Generally well-structured but introduces substantial content not in GT: (1) DocumentSection with section_type enum (TITLE, BODY, COMMENT, DESCRIPTION, CODE, ATTACHMENT_TEXT) adds complexity beyond GT; (2) canonical_id concept (source_type:source_id) not in GT; (3) FalkorDB consumer as optional pipeline stage not in GT; (4) Vault inotify adapter to ConnectorDocument format -- GT keeps vault separate; (5) Unleash feature flags for interval tuning not in GT; (6) access_control field on ConnectorDocument not in GT. These additions are plausible but represent hallucinated detail relative to ground truth, reducing signal-to-noise.",
+        "D5": "0.7 - Has ADR structure (Status, Context, Decision, Consequences, Alternatives, Related). Frontmatter present with title, status, date, type, jira, tags. Uses proper markdown formatting. However: (1) jira field is 'VW-TBD' not VW-184; (2) no vault-path in frontmatter (GT has vault-path: 09-System/Architecture/ADRs); (3) missing several GT frontmatter tags (project/*, tech/* tags); (4) has 'Requirements' subsection in Context which is not a standard ADR section but is reasonable; (5) 'Related' section uses bullet format matching GT convention."
+      }
+    },
+    "B": {
+      "file": "pilot/condition-b/ADR-034.md",
+      "scores": {
+        "D1_technical_correctness": 1.0,
+        "D2_citation": 0.85,
+        "D3_completeness": 0.85,
+        "D4_conciseness": 1.0,
+        "D5_pattern_adoption": 0.9
+      },
+      "rationale": {
+        "D1": "1.0 - Technically accurate against GT and goes further with implementation-verified details: (1) Correctly identifies Kafka topic vault.connector-docs; (2) Correctly names the Onyx shim approach (OnyxBridge, CheckpointedConnector) which aligns with what GT describes as borrowing Onyx patterns; (3) ConnectorDoc model matches GT fields (source, source_id, title, content, url, author, created_at, updated_at, metadata); (4) Single Qdrant collection rootweaver_vault confirmed; (5) KEDA ScaledJob pattern confirmed; (6) SealedSecrets for credentials confirmed; (7) Watermark-based Postgres checkpointing is an implementation detail that is plausible and consistent; (8) Correctly identifies VW-184 as the parent issue; (9) Source filter plumbing details (VW-186 commit c392e56) are verifiable implementation facts; (10) CronJob scheduling model is consistent with GT's Prefect-based scheduling. No factual contradictions with GT found.",
+        "D2": "0.85 - Rich citation density: VW-184 (with commit 71856b5, MR !7), VW-186 (with commit c392e56), VW-188 (231 issues synced detail), VW-232 (specific bug: no __main__ block), VW-185 (HashiCorp Vault deferred), VW-235 (Qdrant dual-write), ADR-010 (Streaming Journal System), ADR-030 (repo structure), HLD-02 (RAG Platform), HLD-03 (AI Layer), Onyx github URL with path backend/onyx/connectors/. File paths: factory.py, bridge.py, models.py, indexer.py, indexer_runner.py, connector_jira_sync.py, jira/connector.py (1067 lines), confluence/connector.py (1118 lines). Missing from GT: ADR-013 (SealedSecrets -- GT names it explicitly), ADR-016 (named in GT References), vault_indexer.py path, federation.py path, Kafka topic names vault.file-events/vault.file-tagged. Condition B adds citations not in GT (VW-235, ADR-010, HLD-02, HLD-03) which are additive. Ratio of GT citations covered: ~8/12 GT references present + many additional verified references.",
+        "D3": "0.85 - Covers all major GT sections: Context (current state, gap analysis, competitive landscape), Decision (architecture diagram, key components, connector lifecycle, source filter plumbing), Consequences (positive, negative, neutral), Alternatives (3 considered with detailed pros/cons/rejection), Related references. Includes details GT has: Onyx BaseConnector analysis, Kafka rationale, single collection decision, deployment model. Adds beyond GT: Source filter gap in agent path (VW-186 part 2), consumer gap (VW-232), neutral consequences section, Onyx shim maintenance burden. Missing from GT: (1) explicit priority table (P0/P1/P2/P3) for connector ordering; (2) 'Comparison: Current MCP vs Proposed Connectors' dimension table; (3) explicit scheduling interval table (GT has Jira 15min, Confluence 1hr, GitLab 30min, Slack 5min, Google Drive 1hr); (4) validate_credentials() method on BaseConnector; (5) GT's 3-phase implementation plan with numbered steps.",
+        "D4": "1.0 - Extremely dense and precise. Every paragraph carries load-bearing information. No filler sentences, no vague hand-waving. Technical claims are specific (commit SHAs, line counts, issue counts). The 5-layer architecture breakdown is well-organized. Source filter plumbing section honestly documents an incomplete feature (agent path gap). Consumer gap (VW-232) disclosed in Negative consequences rather than hidden. No hallucinated padding -- every detail is either from GT or is a verifiable implementation fact.",
+        "D5": "0.9 - Full ADR structure (Status, Context, Decision, Consequences, Alternatives Considered, Related). Frontmatter has title, status, date, type, jira (VW-184 correct), tags. Uses vault-convention formatting. Consequences split into Positive/Negative/Neutral (GT has Positive/Negative/Risks -- the Neutral addition is a reasonable pattern). Missing: (1) vault-path in frontmatter; (2) GT's Deciders field; (3) some GT-specific tags (project/*, tech/* granular tags). Architecture diagram uses ASCII art consistent with Rootweaver style. Related section uses bullet format with bold labels."
+      }
+    },
+    "C": {
+      "file": "pilot/condition-c/ADR-034.md",
+      "scores": {
+        "D1_technical_correctness": 1.0,
+        "D2_citation": 0.95,
+        "D3_completeness": 0.95,
+        "D4_conciseness": 1.0,
+        "D5_pattern_adoption": 0.9
+      },
+      "rationale": {
+        "D1": "1.0 - Technically precise and implementation-verified: (1) Correctly identifies all four Onyx connector interfaces (PollConnector, LoadConnector, CheckpointedConnector, EventConnector) with their method signatures -- this is more detailed than GT but consistent; (2) ConnectorDoc fields match GT exactly; (3) Kafka topic vault.connector-docs correct; (4) Single Qdrant collection rootweaver_vault confirmed; (5) KEDA ScaledJob pattern confirmed; (6) 9 registered sources named (jira, confluence, gitlab, discord, slack, gmail, imap, web, file) which extends GT's list but is consistent; (7) UUID5 deterministic point IDs for idempotent upserts -- a verifiable implementation detail; (8) 750-token chunks with 75-token overlap specified; (9) Manual offset commit, DLQ (vault.connector-docs.dlq), retry with exponential backoff -- all consistent with Kafka consumer patterns from VW-62; (10) Dual-write to Qdrant v1 and v2 collections (VW-235) is an implementation detail beyond GT but plausible; (11) Watermark overlap parameter (2 minutes) for clock skew is a sound engineering detail. No contradictions with GT.",
+        "D2": "0.95 - Highest citation density of all conditions. Named references: VW-184 (parent issue), VW-188 (Jira connector sync), VW-232 (connector indexer consumer), VW-235 (Qdrant dual-write), VW-107 (data-leak risk class reference in Alternative C), ADR-030 (repo structure, packages/rootweaver-connectors placement). File paths cited with full package paths: onyx_shim/onyx/connectors/interfaces.py, onyx_shim/onyx/connectors/models.py, factory.py, bridge.py, models.py, indexer.py, indexer_runner.py, sources/jira/connector.py (1067 lines), sources/confluence/connector.py (1118 lines), operator_tools/connector_jira_sync.py, neural-vault/vault_indexer.py, shared_constants.py (in Alternative C context). Named Onyx types: Document, TextSection, ImageSection, TabularSection, BasicExpertInfo, DocumentSource, ConnectorFailure, HierarchyNode, ConnectorCheckpoint. Missing from GT: ADR-013 (SealedSecrets), ADR-016, mcp_bridge.py path, federation.py path, vault.file-events/vault.file-tagged topic names. But adds many verified references GT does not have. Ratio: ~8/12 GT references + ~15 additional verified references.",
+        "D3": "0.95 - Most comprehensive coverage. All GT sections present: Context (current state, competitive landscape, Onyx analysis), Decision (5-layer architecture), Consequences (positive, negative, neutral), Alternatives (4 considered -- adds Alternative C: File-Based Staging not in GT), Related. Covers GT details: Onyx BaseConnector analysis, Kafka rationale (failure isolation, backpressure, replay, fan-out -- matches GT's 5 reasons), single collection decision, ConnectorDoc model. Adds beyond GT: (1) 5-layer architecture decomposition (Connector Abstraction, Bridge, Watermark Scheduling, Kafka Consumer, Source Provenance); (2) Detailed Onyx type system (4 connector interfaces); (3) Producer.flush() in finally block detail; (4) Log compaction key format; (5) SIGTERM graceful shutdown; (6) Alternative C (file-based staging) with vault indexer exclusion list reference; (7) Provenance metadata fields (source_url, vault_section, temporal fields). Missing from GT: (1) explicit P0/P1/P2/P3 priority table; (2) 'Comparison: Current MCP vs Proposed Connectors' table; (3) GT's scheduling interval table; (4) GT's 3-phase implementation plan with numbered steps; (5) validate_credentials() method. Minor gaps only.",
+        "D4": "1.0 - Every sentence is load-bearing. The 5-layer architecture is a disciplined decomposition that makes the ADR scannable. No filler paragraphs. Technical details are precise (UUID5, 750-token chunks, 75-token overlap, 2-minute watermark overlap, 1067-line Jira connector, 1118-line Confluence connector). Alternatives section is thorough but not padded -- each alternative has clear Pros/Cons/Rejection reasoning. The file-based staging alternative (C) adds genuine insight about impedance mismatch and filesystem pollution that GT's alternatives don't cover. No hallucinated padding detected.",
+        "D5": "0.9 - Full ADR structure. Frontmatter has title, status, date, type, jira (VW-184 correct), tags. Related section includes both issue references and file paths with full package paths. Architecture uses clean ASCII diagram. Missing: (1) vault-path in frontmatter; (2) GT's Deciders field; (3) GT's granular project/*/tech/* tags. Consequences section uses Positive/Negative/Neutral split (GT uses Positive/Negative/Risks). The 5-layer numbered structure in Decision section is a pattern not in GT but is a clear improvement for readability."
+      }
+    }
+  },
+  "summary": {
+    "condition_a": {
+      "total": 2.65,
+      "mean": 0.53,
+      "strengths": "Good structural coverage, introduces reasonable architectural extensions (DocumentSection types, canonical_id, FalkorDB graph consumer)",
+      "weaknesses": "Interface design diverges from GT (single poll() vs poll_source()+incremental_sync()), wrong Kafka topic names, VW-TBD instead of VW-184, missing key citations (ADR-013, file paths), introduces content not in GT (Unleash, access_control, FalkorDB)"
+    },
+    "condition_b": {
+      "total": 4.60,
+      "mean": 0.92,
+      "strengths": "Implementation-verified details (commit SHAs, VW issue statuses, line counts), honest about gaps (source filter agent path, VW-232 consumer gap), dense and precise writing",
+      "weaknesses": "Missing GT's priority table and scheduling intervals, missing ADR-013 reference, no explicit implementation phasing with numbered steps"
+    },
+    "condition_c": {
+      "total": 4.80,
+      "mean": 0.96,
+      "strengths": "Deepest technical depth (4 Onyx interfaces, 5-layer architecture, UUID5 idempotency, DLQ design, graceful shutdown), highest citation density, adds a 4th alternative (file-based staging) with genuine insight",
+      "weaknesses": "Missing GT's priority table, scheduling intervals table, and numbered implementation phases; missing ADR-013 reference"
+    },
+    "ranking": "C (0.96) > B (0.92) > A (0.53)"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "adr": "ADR-043",
+  "title": "Memory System Derived-Data GDPR Position",
+  "judge_model": "claude-opus-4-7",
+  "date": "2026-05-25",
+  "rubric_version": "5-condition",
+  "conditions": {
+    "A": {
+      "label": "no_context",
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.4,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.5,
+      "composite": 0.48,
+      "notes": "Correct directional decision (cascade-delete, EDPB over Hamburg) but fabricates specifics: 24-month retention default, REST API endpoints, explicit deletion propagation order (leaf-first) that conflicts with ground truth CASCADE approach. Misses co-location simplification argument, redaction-at-insert for assistant_thinking, 19-78% leakage rate, --immediate flag, source JSONL handling. Cites Song & Raghunathan 2020 and Carlini 2021 (valid but not in ground truth). Missing 11 of 15 ground truth references. No validation section, no when-to-revisit, no decision record metadata. Frontmatter lacks vault-path and jira."
+    },
+    "B": {
+      "label": "vault_search",
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.5,
+      "completeness": 0.6,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.5,
+      "composite": 0.52,
+      "notes": "Vault search provides codebase awareness: references tables.py, memory_forget.py, redactor.py, falkordb_fanout.py, test files, VW-220/VW-422/VW-391. However, mischaracterizes Hamburg DPA as 'January 2024 enforcement action' (was July 2024 discussion paper) -- a factual error likely from vault document ambiguity. Adds 24-month retention and MEMORY_RETENTION_MONTHS (not in ground truth). Has implementation requirements section (useful pragmatic addition). Missing: co-location argument, EDPB CEF 2025, Brandur Leach, Leaky Thoughts arXiv reference, validation section, when-to-revisit."
+    },
+    "C": {
+      "label": "vault_search_plus_memory_recall",
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.85,
+      "completeness": 0.85,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.8,
+      "composite": 0.90,
+      "notes": "Memory recall provides directional consensus (Fact 1721, 1747) that grounds the decision. Correctly identifies all data layers with schema-level detail including line numbers. All 7 decision controls present and correct. Co-location argument present. Cites EDPB CEF 2025, Brandur Leach, aicompetence.org, Leaky Thoughts with arXiv ID, What Should LLMs Forget, langchain #17499, Mem0. Hamburg DPA correctly dated July 2024. 158 lines -- most concise of all conditions. Missing: explicit validation section and when-to-revisit section (ground truth has both). FalkorDB graph name differs (rootweaver_memory vs document_knowledge)."
+    },
+    "D": {
+      "label": "vault_plus_memory_plus_prior_art",
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.5,
+      "completeness": 0.7,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.6,
+      "composite": 0.76,
+      "notes": "Typed memory evidence (Fact 1721, 1747 with confidence scores) adds provenance. Excellent per-table personal-data classification. Crypto-shredding alternative is a strong addition not in ground truth. However, prior art citations are weaker than expected given condition label: cites 'Hamburg DPA (2023)' (wrong year), references OWASP AI Security and Privacy Guide instead of AISVS C08, references EDPB Guidelines 05/2014 instead of Opinion 28/2024. Missing: EDPB CEF 2025, Brandur Leach, aicompetence.org, Leaky Thoughts, langchain #17499, Mem0, Letta, co-location simplification argument. No validation section, no when-to-revisit."
+    },
+    "E": {
+      "label": "vault_plus_memory_plus_prior_art_plus_codebase",
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.95,
+      "completeness": 0.95,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.95,
+      "composite": 0.97,
+      "notes": "Near-identical to ground truth. All 7 data layers with schema-level detail and line numbers. All 7 decision controls correct. Co-location argument present with same reasoning (federated vs co-located, Mem0 validation, 7 PKM systems). 14 of 15 ground truth references cited with correct URLs (only missing Milvus). Has validation section (6 SQL checks), when-to-revisit (5 triggers), decision record metadata. Frontmatter matches ground truth exactly (vault-path, jira, related_plan). 217 lines vs ground truth 197 -- additional length is all substantive. The DROP SCHEMA memory CASCADE downgrade path is a codebase-grounded detail not available without code access."
+    }
+  },
+  "ranking": [
+    {"rank": 1, "condition": "E", "composite": 0.97},
+    {"rank": 2, "condition": "C", "composite": 0.90},
+    {"rank": 3, "condition": "D", "composite": 0.76},
+    {"rank": 4, "condition": "B", "composite": 0.52},
+    {"rank": 5, "condition": "A", "composite": 0.48}
+  ],
+  "e_beat_c": true,
+  "e_vs_c_delta": 0.07,
+  "e_vs_c_analysis": "E beats C on citation_of_prior_art (+0.10), completeness (+0.10), and pattern_adoption (+0.15). The gains come from codebase grounding: E has the validation section with SQL checks, the when-to-revisit section, decision record metadata, and the DROP SCHEMA CASCADE downgrade path -- all derived from direct code access. E also recovers 3 references C missed (Letta, Crunchy Data, ProvSQL). Both tie on technical_correctness (1.0) and conciseness (1.0). The codebase grounding in E closes the structural completeness gap that C leaves open.",
+  "key_findings": {
+    "biggest_gap_a_to_e": "citation_of_prior_art (0.4 -> 0.95, +0.55) and pattern_adoption (0.5 -> 0.95, +0.45)",
+    "d_underperformance": "Condition D (prior art) paradoxically scored lower on citation_of_prior_art (0.5) than C (0.85) because it cited the WRONG sources: Hamburg DPA dated 2023 instead of 2024, OWASP AI Privacy Guide instead of AISVS C08, EDPB 05/2014 instead of Opinion 28/2024. Prior art retrieval returned related but non-authoritative documents, and the model trusted them over its own knowledge.",
+    "c_sweet_spot": "C achieves 0.90 composite at presumably lower tool-call cost than E. For ADRs where the codebase doesn't contain validation-ready artifacts, C may be the cost-optimal condition.",
+    "fabrication_pattern": "A and B both fabricate specifics (24-month retention, REST endpoints, January 2024 enforcement action) that are absent from ground truth. Vault search (B) reduced some fabrication but introduced new errors from misinterpreted vault documents."
+  }
+}

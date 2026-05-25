@@ -1,0 +1,104 @@
+{
+  "adr": "ADR-034",
+  "title": "Data Source Connector Architecture",
+  "ground_truth": "ground-truth/ADR-034-Data-Source-Connector-Architecture.md",
+  "scorer": "claude-opus-4-7",
+  "scored_at": "2026-05-25T00:00:00Z",
+  "conditions": {
+    "A": {
+      "label": "condition-a (baseline, no tools, no memory)",
+      "technical_correctness": 0.5,
+      "citation_of_prior_art": 0.2,
+      "completeness": 0.65,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.7,
+      "composite": 0.51,
+      "notes": {
+        "technical_correctness": "Architecturally sound design with BaseConnector interface, ConnectorDocument model, Kafka pipeline, and Qdrant single-collection strategy. However, invents details that diverge from the actual codebase: uses ConnectorDocument with typed DocumentSection/section_type enum and canonical_id (the real codebase uses a flat ConnectorDoc with plain content string). Scheduling intervals differ from ground truth (5min Jira vs 15min in GT). Missing the distinction between vault's event-driven path and connector polling. Overall plausible but with speculative architectural choices. Scored 0.5: fundamentally sound approach with some inaccuracies.",
+        "citation_of_prior_art": "No Jira references (VW-TBD placeholder). No citation of VW-184, VW-186, VW-188, VW-232 or any implementation evidence. No reference to ADR-013 (SealedSecrets), ADR-010 (Kafka patterns), or ADR-030 (repo structure). No mention of specific commits, existing code paths, or prior decisions. Mentions Onyx and Glean generically. Extremely weak prior-art citation.",
+        "completeness": "Has all major ADR sections (Context, Decision, Consequences, Alternatives). Context describes the gap well but lacks the detailed current-state table and Onyx 7-point analysis from GT. Decision has good structure (6 subsections) but misses the 'Why Kafka' rationale section, priority table, and MCP-vs-Connectors comparison table that GT includes. 3 alternatives considered (matching GT count) with reasonable rejection rationale. Missing implementation plan detail (GT has 13 numbered steps across 3 phases). Missing scheduling table granularity. Consequences section is adequate but less specific than GT.",
+        "conciseness": "At ~260 lines, somewhat verbose for the information conveyed. The DocumentSection taxonomy and typed sections add bulk without matching the actual implementation. The alternatives section is well-proportioned. Some repetition between context and decision sections. Scored 0.5: adequate density but not tight.",
+        "pattern_adoption": "Follows ADR template correctly (Status, Context, Decision, Consequences, Alternatives, Related). Has frontmatter with tags. Uses ASCII architecture diagram. Includes Python code samples. Missing vault-path in frontmatter. Jira field is VW-TBD (should be VW-184). No implementation status tracking."
+      }
+    },
+    "B": {
+      "label": "condition-b (vault search + graph tools)",
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.85,
+      "completeness": 0.80,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.85,
+      "composite": 0.90,
+      "notes": {
+        "technical_correctness": "Highly accurate. Correctly describes the Onyx shim approach, OnyxBridge with checkpoint_sync(), ConnectorDoc flat model, Kafka topic vault.connector-docs, KEDA ScaledJob pattern, Postgres watermark checkpointing, and single-collection Qdrant strategy. Correctly identifies the source filter gap in agent path. Architecture diagram with file paths matches actual codebase structure. Connector lifecycle (8 steps) is technically precise. The only minor gap: no mention of deterministic UUID5 point IDs for idempotent upserts.",
+        "citation_of_prior_art": "Excellent. Cites VW-184, VW-186 (with commit c392e56), VW-188 (231 issues synced, consumer blocked on VW-232), VW-232 (no __main__ block), VW-185 (HashiCorp Vault deferred). References ADR-010, ADR-030, HLD-02, HLD-03, and Onyx GitHub URL. Constraints section references existing Kafka infrastructure, KEDA patterns, and SealedSecrets. Missing: specific fact IDs from typed memory, line counts for connector sources, and some VW-243 DLQ reference.",
+        "completeness": "Strong coverage. Context with 5 constraints, decision with 6 subsections including connector lifecycle and source filter plumbing. Consequences has 6 positive, 5 negative, 2 neutral. 3 alternatives with detailed pros/cons. Missing from GT: priority table (P0-P3), explicit 'Why Kafka' section (reasons embedded in design), comparison table (MCP vs Connectors), and implementation plan with numbered steps. Has scheduling table and Qdrant strategy.",
+        "conciseness": "At ~200 lines, excellent information density. Every section earns its space. No repetition. Technical claims are precise and verifiable. The connector lifecycle sequence is tight. Source filter plumbing section adds value without padding. One of the most efficient outputs.",
+        "pattern_adoption": "Good ADR format with all standard sections. Frontmatter includes jira: VW-184, correct tags. Missing vault-path in frontmatter. Related section has 10 items with cross-references. Has neutral consequences section (a good addition). Architecture diagram with file paths follows project conventions."
+      }
+    },
+    "C": {
+      "label": "condition-c (vault search + graph + memory)",
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.90,
+      "completeness": 0.90,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.90,
+      "composite": 0.94,
+      "notes": {
+        "technical_correctness": "Exceptionally accurate. Correctly distinguishes all four Onyx connector interfaces (PollConnector, LoadConnector, CheckpointedConnector, EventConnector) with their method signatures. Layer-by-layer architecture is precise: onyx_shim structure, bridge with ConnectorFailure/HierarchyNode handling, watermark with overlap parameter (2min default), consumer with manual offset commit, exponential backoff (3 attempts, 1s base), DLQ (vault.connector-docs.dlq with base64), graceful SIGTERM shutdown, dual-write to v1+v2 via QdrantAdapter (VW-235). Deterministic UUID5 point IDs correctly described. Source provenance metadata (7 fields) matches actual implementation.",
+        "citation_of_prior_art": "Excellent. Cites VW-184, VW-186 (commit c392e56), VW-188 (231 issues synced), VW-232 (consumer design), VW-235 (dual-write). References ADR-030, onyx_shim file paths, and specific source files (factory.py, bridge.py, models.py, indexer.py, indexer_runner.py, jira connector.py with 1067 lines, confluence connector.py with 1118 lines). 15+ related items with file paths. Missing: typed memory fact IDs and some competitive landscape detail.",
+        "completeness": "Very thorough. 5-layer architecture covers all aspects. Context includes constraints and requirements. Has all GT elements: scheduling, Qdrant strategy, consequences (6 pos, 5 neg, 2 neutral). 4 alternatives considered (including unique file-based staging option with 4 rejection reasons). Related section with 15+ items including specific file paths. Missing from GT: explicit priority table, comparison table (MCP vs Connectors), and explicit 'Why Kafka' rationale section (embedded in Alternative B rejection). Implementation phasing less explicit than GT's 13-step plan.",
+        "conciseness": "At ~185 lines, the most compact of the high-quality outputs. Extremely dense yet readable. Each layer section is tight. The alternative for file-based staging (unique insight) earns its inclusion. No padding or repetition. Metadata contract table is an efficient format choice.",
+        "pattern_adoption": "Strong ADR format. Frontmatter includes jira: VW-184, correct tags. Missing vault-path in frontmatter. Has neutral consequences section. Related section is the most detailed of all conditions. File path references follow project conventions. The 5-layer architecture structure is a good organizational choice."
+      }
+    },
+    "D": {
+      "label": "condition-d (vault search + graph + memory + typed memory)",
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.95,
+      "completeness": 0.85,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.85,
+      "composite": 0.83,
+      "notes": {
+        "technical_correctness": "Accurate throughout. Correctly describes the CheckpointedConnector interface with StopIteration.value for checkpoint return, PollConnector and LoadConnector as secondary interfaces. OnyxBridge.checkpoint_sync() behavior, Kafka flush in finally block, watermark advancement logic all correct. ConnectorDoc model matches actual implementation. Factory registry with dynamic import correctly described. Metadata contract table is accurate. Data flow diagram correct. One minor note: describes indexer_runner.py as both the Kafka consumer runner and K8s CronJob runner (these are actually separate concerns) but the technical claims themselves are correct.",
+        "citation_of_prior_art": "Outstanding. The 'Evidence from Typed Memory' section cites 7 specific facts with fact IDs (#4775, #2478, #2461, #4714, #2424, #4682, #2386, #2481). References VW-184, VW-188, VW-232, and specific interface mismatches. Correctly notes the historical decision to switch from Prefect to CronJob (fact #2478). References the original VW-184 decision that rejected a full connector framework (fact #4775) and explains why it was reconsidered. Cites ADR-030, platform guardrails, Onyx connector interfaces. The deepest citation layer of all conditions.",
+        "completeness": "Good coverage. Context with 7 typed memory evidence points. Decision with 6 architecture components, data flow diagram, metadata contract. Consequences: 6 positive, 5 negative. 3 alternatives (including 'Direct API Polling Without Onyx' with code example - unique). Missing from GT: scheduling table, Qdrant collection strategy discussion, priority table, comparison table (MCP vs Connectors), explicit 'Why Kafka' section, and implementation phasing. The typed memory evidence section is valuable but takes space from architectural decision detail.",
+        "conciseness": "At ~245 lines, the longest of the high-quality outputs. The typed memory evidence section (~35 lines) provides deep provenance but adds bulk. The Alternative 2 code example (RootWeaverConnector interface) is useful but adds ~10 lines. Some overlap between the evidence section and the decision rationale. The per-connector line count table (Jira: 1,394, Confluence: 2,883, etc.) is unique and valuable but adds length. Scored 0.5: informative but could be tighter.",
+        "pattern_adoption": "Good ADR format. Frontmatter correct with jira: VW-184. Has data flow diagram. Metadata contract table is a good practice. Related section references ADR-030, platform guardrails, and Onyx interfaces. Missing vault-path in frontmatter. The typed memory evidence section is a novel pattern not in standard ADR template but adds value for decision traceability."
+      }
+    },
+    "E": {
+      "label": "condition-e (vault search + graph + memory + typed memory + codebase verification)",
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.95,
+      "completeness": 0.95,
+      "conciseness": 1.0,
+      "pattern_adoption": 0.95,
+      "composite": 0.97,
+      "notes": {
+        "technical_correctness": "Impeccable. Every architectural claim is verifiable against the codebase. The 4-layer architecture description matches actual file paths and code structure. Specific stats: 463 lines framework code, 9,209 lines connector sources, 20+ Python files in onyx_shim (~1,400 lines). Connector table with per-source line counts (Jira: 1,394, Confluence: 2,883, etc.). Correctly describes Kafka topic, KEDA ScaledJob, watermark in Postgres, deterministic UUID5 point IDs, dual-write v1+v2 via QdrantAdapter. The 'Why Onyx Fork Over Alternatives' section adds Airbyte comparison (ELv2 licensing, Docker containers, no source auditability) not in GT. Implementation status table with 12 rows of component/status/evidence is a unique addition grounded in actual system state.",
+        "citation_of_prior_art": "Outstanding. Cites VW-184, VW-186 (commit c392e56), VW-188 (231 issues, watermark validated), VW-232 (indexer __main__ block), VW-243 (DLQ replay design), VW-235 (dual-write). References ADR-013, ADR-016. Evidence from Retrieval Tools section documents what each search layer found, including PDG timeout (consistent with MEMORY.md drift note). Codebase verification section notes specific line counts. References specific vault file paths for design plans and implementation reports. 10 reference items. Only marginally below D because it doesn't cite typed memory fact IDs, but the codebase verification evidence is equally or more compelling.",
+        "completeness": "The most complete output. Has all GT elements: market comparison, current state analysis, architecture diagram, connector interface, Qdrant strategy (with 4 reasons), scheduling section, implementation status table (unique, 12 rows). 4 alternatives (including Airbyte - unique). Consequences: 7 positive, 5 negative, risk table (6 rows with mitigations). 'Why Onyx Fork Over Alternatives' section covers 4 comparisons (vs Airbyte, from scratch, Onyx wholesale, MCP-only). References section with 10 items. The implementation status table bridges the ADR-as-proposal and ADR-as-record gap. Only minor omission vs GT: no explicit comparison table (MCP vs Connectors in tabular form) and no numbered implementation steps.",
+        "conciseness": "At ~191 lines, remarkably compact for the information density achieved. The connector table (9 sources, line counts, what-gets-indexed) is the most efficient format choice. Implementation status table (12 rows) packs maximum information into minimal space. No repetition. Every section earns its inclusion. The 'Evidence from Retrieval Tools' section (10 lines) is a tight provenance audit. Risk table with mitigations is a compact alternative to prose. The best information-to-line-count ratio of all conditions.",
+        "pattern_adoption": "Excellent. All standard ADR sections present. Frontmatter includes jira: VW-184 AND vault-path: 09-System/Architecture/ADRs (unique among conditions). Tags comprehensive. Implementation status table follows a ship-state documentation pattern. Risk table with mitigations follows enterprise ADR best practices. References section with vault file paths and Jira references follows project conventions. The 'Evidence from Retrieval Tools' provenance section establishes a reproducible verification pattern."
+      }
+    }
+  },
+  "ranking": [
+    {"rank": 1, "condition": "E", "composite": 0.97, "rationale": "Highest on all dimensions. Codebase verification produced the most accurate, complete, and actionable ADR. Implementation status table and risk mitigations are unique high-value additions."},
+    {"rank": 2, "condition": "C", "composite": 0.94, "rationale": "Extremely strong. 5-layer architecture is the most precise technical description. File-based staging alternative is a unique insight. Most compact of the high-quality outputs."},
+    {"rank": 3, "condition": "B", "composite": 0.90, "rationale": "Strong performance from vault search + graph alone. Connector lifecycle and source filter plumbing sections demonstrate good architectural reasoning. Excellent conciseness."},
+    {"rank": 4, "condition": "D", "composite": 0.83, "rationale": "Deepest citation layer (typed memory fact IDs) but verbosity dilutes the score. Evidence section valuable for provenance but trades off against architectural completeness and conciseness."},
+    {"rank": 5, "condition": "A", "composite": 0.51, "rationale": "Architecturally plausible but speculative. No citation of prior art. Invents details that diverge from actual codebase. Demonstrates the cost of generating an ADR without project context."}
+  ],
+  "e_vs_c": {
+    "e_beat_c": true,
+    "margin": 0.03,
+    "dimensions_where_e_won": ["completeness", "pattern_adoption"],
+    "dimensions_where_c_won": [],
+    "dimensions_tied": ["technical_correctness", "conciseness"],
+    "analysis": "E beat C by a narrow margin. Both scored 1.0 on technical_correctness and conciseness. E's advantage came from completeness (+0.05: implementation status table, risk mitigations table, Airbyte alternative) and pattern_adoption (+0.05: vault-path frontmatter, evidence provenance section). C's 5-layer architecture description is arguably the cleanest technical decomposition, but E's codebase verification step produced concrete line counts, deployment status, and verifiable claims that make the ADR both a design document and a system-state record. The codebase verification capability in E transforms the ADR from a forward-looking proposal into an evidence-backed architectural record, which is the more valuable artifact for long-term maintenance."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "artifact": "ADR-048-Egress-Control-Strategy",
+  "ground_truth": "pilot/ground-truth/ADR-048-Egress-Control-Strategy.md",
+  "scored_at": "2026-05-25",
+  "dimensions": {
+    "D1_technical_correctness": {
+      "scale": "0 | 0.5 | 1.0",
+      "description": "Factual accuracy of technical claims against ground truth"
+    },
+    "D2_citation": {
+      "scale": "0.0-1.0 ratio",
+      "description": "Proportion of ground-truth citations correctly reproduced"
+    },
+    "D3_completeness": {
+      "scale": "0.0-1.0 ratio",
+      "description": "Coverage of ground-truth substantive sections and claims"
+    },
+    "D4_conciseness": {
+      "scale": "0 | 0.5 | 1.0",
+      "description": "Absence of bloat; information density comparable to ground truth"
+    },
+    "D5_pattern_adoption": {
+      "scale": "0.0-1.0 ratio",
+      "description": "Adherence to ADR frontmatter schema and section conventions in ground truth"
+    }
+  },
+  "conditions": {
+    "A": {
+      "file": "pilot/condition-a/ADR-048.md",
+      "D1_technical_correctness": 0.5,
+      "D1_notes": "vllm-embedding port wrong (8000 vs GT 8001); backfill described as 222 sessions (GT: 12 sessions/107 facts); OpenAI use case stated as embeddings (GT: fact extraction via gpt-4o-mini); fabricated FluxCD-revert detail not in GT; proposes ssl_bump peek (GT uses CONNECT tunnelling); only 4 alternatives vs GT's 5",
+      "D2_citation": 0.67,
+      "D2_notes": "Correctly cites VW-425, VW-426, K8s docs, Cilium docs. Missing: VW-409 as explicit parent, ADR-046, commit edc6193, Monzo egress-operator. Adds non-GT refs (VW-389, kube-router docs, platform guardrails)",
+      "D3_completeness": 0.70,
+      "D3_notes": "Covers context, decision, consequences, alternatives, acceptance criteria, related. Missing: explicit decision-drivers section, 5th alternative (only 4), open questions for Ryan, standalone empirical evidence section",
+      "D4_conciseness": 1.0,
+      "D4_notes": "192 lines vs GT 239. Includes detailed config snippets not in GT but no significant bloat",
+      "D5_pattern_adoption": 0.60,
+      "D5_notes": "Frontmatter missing vault-path, adr field, related_adrs, date_proposed. Uses type:adr instead of adr:ADR-048. jira is scalar 'VW-TBD' not list. Missing Decision Drivers and Acceptance Criteria as named sections",
+      "composite": 0.694
+    },
+    "B": {
+      "file": "pilot/condition-b/ADR-048.md",
+      "D1_technical_correctness": 0.5,
+      "D1_notes": "OpenAI use case stated as embeddings (GT: fact extraction); fabricated FluxCD-revert detail and three-instance pattern (VW-323-326) not in GT; proposes ssl_bump peek (GT: CONNECT tunnelling); expanded allowlist to 7 FQDNs (GT: 3); proxy placed in rootweaver namespace (GT: egress-proxy namespace); DNS caching subtlety technically sound but not in GT",
+      "D2_citation": 0.33,
+      "D2_notes": "Correctly cites VW-425, VW-426, ADR-030 implicitly. Missing: VW-409 explicitly, ADR-046, commit edc6193, K8s docs link, Cilium docs link, Monzo egress-operator. Adds many non-GT refs (ADR-047, VW-389, VW-68, VW-323-326, gap analysis, EIP cross-namespace, Kustomize incident)",
+      "D3_completeness": 0.60,
+      "D3_notes": "Covers context (thorough), decision, consequences (positive/negative/neutral), alternatives (4 not 5, no Istio equivalent). Missing: explicit decision-drivers section, acceptance-criteria section, open questions, evidence section. Phase 2 decision criteria partially compensates",
+      "D4_conciseness": 1.0,
+      "D4_notes": "178 lines, most compact of the three. Good information density, no significant bloat",
+      "D5_pattern_adoption": 0.55,
+      "D5_notes": "Frontmatter missing vault-path, adr field, related_adrs, date_proposed. jira is CSV string not list. Missing Decision Drivers and Acceptance Criteria as named sections. Has Phase 2 Decision Criteria as partial substitute",
+      "composite": 0.596
+    },
+    "C": {
+      "file": "pilot/condition-c/ADR-048.md",
+      "D1_technical_correctness": 1.0,
+      "D1_notes": "All key technical facts match GT: VW-409 backfill with 12 sessions, gpt-4o-mini for fact extraction, memory-writer-policy ports (9092/5432/6379/8001/4317/53), kube-router race condition, temporary patch details, backfill outcome (107 facts, 62265 tokens, $0.023), L3/L4 limitation, all 5 options A-E, egress-proxy namespace, 3 FQDNs in allowlist, Phase 2 Cilium Q3 2026. Only minor: status says Proposed (GT says Accepted) and omits commit edc6193 hash",
+      "D2_citation": 0.89,
+      "D2_notes": "Correctly cites VW-409, VW-425, VW-426, ADR-030, ADR-046, K8s NetworkPolicy spec, Cilium FQDN docs (with URL), Monzo egress-operator (with URL). Missing only commit edc6193. Adds ADR-047 (not in GT but not incorrect)",
+      "D3_completeness": 0.85,
+      "D3_notes": "Covers all major GT sections: Context (1.1-1.5), Decision drivers (6 items), Considered alternatives (5 options), Decision (Phase 1+2), Consequences (positive/negative/risk table), Acceptance criteria (Phase 1+2), Related + Key files. Missing: Open questions for Ryan, standalone Evidence section (empirical data embedded in 1.1 instead)",
+      "D4_conciseness": 1.0,
+      "D4_notes": "241 lines, very close to GT (239). Risk matrix table and key-files table add genuine value. No bloat detected",
+      "D5_pattern_adoption": 0.85,
+      "D5_notes": "Frontmatter includes vault-path (critical platform convention), title, status, date, type, jira as list, related_adrs, tags. Missing only date_proposed and adr field. Numbered sections (1-7) are a style choice. Covers all GT section types except Open Questions",
+      "composite": 0.918
+    }
+  },
+  "ranking": ["C", "A", "B"],
+  "finding": "Condition C is the clear winner (0.918 composite) with perfect technical correctness and near-complete citation/completeness. Conditions A and B both score 0.5 on technical correctness due to shared errors: misidentifying the OpenAI use case as embeddings (it was fact extraction) and introducing fabricated details (FluxCD revert, ssl_bump) not present in ground truth."
+}

@@ -1,0 +1,101 @@
+{
+  "adr": "ADR-048",
+  "title": "Egress Control Strategy -- Forward Proxy Now, CNI Migration Later",
+  "scored_at": "2026-05-25T00:00:00Z",
+  "judge_model": "claude-opus-4-7",
+  "conditions_scored": 5,
+  "dimensions": {
+    "D1": "technical_correctness",
+    "D2": "citation_of_prior_art",
+    "D3": "completeness",
+    "D4": "conciseness",
+    "D5": "pattern_adoption"
+  },
+  "conditions": {
+    "A": {
+      "label": "no memory, no vault",
+      "D1_technical_correctness": 0.5,
+      "D2_citation_of_prior_art": 0.8,
+      "D3_completeness": 0.7,
+      "D4_conciseness": 1.0,
+      "D5_pattern_adoption": 0.8,
+      "mean": 0.76,
+      "notes": {
+        "D1": "Claims OpenAI used 'to generate embeddings' (GT: fact extraction via gpt-4o-mini; vllm-embedding handles embeddings). States 222 sessions processed (GT: 12 sessions, 107 facts). vllm-embedding port listed as 8000 (GT: 8001). Mentions ssl_bump peek approach not in GT. Core Squid/Cilium two-phase architecture is correct. Kube-router enforcement race described accurately.",
+        "D2": "Rich citations: LLD-09, VW-323-326 three-instance pattern, VW-68, ADR-047, K8s Gap Analysis, EIP Cross-Namespace Networking, Kustomize NetworkPolicy Incident. Several GT references matched. Missing: ADR-030, ADR-046, Monzo egress-operator, Cilium docs URL.",
+        "D3": "Full Context/Decision/Consequences/Alternatives structure. 4 alternatives (Cilium Now, Keep Broad Rule, DNS-based CoreDNS, Istio/Linkerd). Misses Monzo egress-operator alternative. No empirical test evidence. No explicit acceptance criteria section. Phase 2 decision criteria well-articulated. Related section present.",
+        "D4": "192 lines, well-structured. Comparable density to GT's 239 lines. DNS caching subtlety and TLS-invisible limitation are value-add analysis not in GT. No padding.",
+        "D5": "Standard ADR frontmatter but missing vault-path. VW-425/VW-426 cited. Related section with table format. Missing adr and related_adrs fields."
+      }
+    },
+    "B": {
+      "label": "memory, no vault",
+      "D1_technical_correctness": 0.5,
+      "D2_citation_of_prior_art": 0.9,
+      "D3_completeness": 0.8,
+      "D4_conciseness": 1.0,
+      "D5_pattern_adoption": 0.8,
+      "mean": 0.80,
+      "notes": {
+        "D1": "Claims OpenAI used 'to generate embeddings' (line 27) and allowlist table lists 'Embeddings, chat completions' (line 91) -- GT: fact extraction via gpt-4o-mini. Squid placed in rootweaver namespace with service name 'egress-proxy' (GT: dedicated egress-proxy namespace). Says connections were 'silently dropped' (GT: 'Connection refused'). Adds plausible detail: FluxCD reverted temp patch overnight, three-instance pattern with vault doc paths, expanded API surface (7 FQDNs). Squid CONNECT tunneling and TLS-invisible limitation technically sound.",
+        "D2": "Extensive vault citations with specific file paths: LLD-09-Network-Deployment, VW-323-326, VW-68, ADR-047, K8s Gap Analysis, EIP Cross-Namespace Networking, Kustomize NetworkPolicy Incident, ADR-030, VW-389. Missing: ADR-046, Monzo egress-operator, Cilium docs URL.",
+        "D3": "Full Context with triggering incident, structural problem, three-instance pattern, constraints. Decision with architecture diagram, 7-entry FQDN allowlist table, deployment model, logging, Phase 2 criteria. 4 alternatives (Cilium Now, Keep Broad Rule+Monitoring, DNS-Based CoreDNS, Istio/Linkerd). Misses Monzo egress-operator. No explicit acceptance criteria section. No empirical test data.",
+        "D4": "192 lines, dense and well-organized. TLS-invisible limitation and DNS caching subtlety add analytical depth. No filler content.",
+        "D5": "Proper frontmatter with VW-425/VW-426 Jira references. Related table with relationship descriptions. Missing vault-path, adr, and related_adrs fields."
+      }
+    },
+    "C": {
+      "label": "memory + vault (original)",
+      "D1_technical_correctness": 1.0,
+      "D2_citation_of_prior_art": 0.9,
+      "D3_completeness": 0.95,
+      "D4_conciseness": 1.0,
+      "D5_pattern_adoption": 1.0,
+      "mean": 0.97,
+      "notes": {
+        "D1": "Precisely matches GT: VW-409 incident, gpt-4o-mini for fact extraction from 12 backlogged sessions. Kube-router enforcement race with verbatim empirical test data (5-call pattern with timing). All egress destination ports correct (8001 for vllm-embedding). Squid in egress-proxy namespace with ConfigMap allowlist. Specific image tag (ubuntu/squid:5.2-22.04_beta). Resource limits 64Mi-256Mi, 50m-500m match GT. Phase 2 migration plan matches. Zero factual errors detected.",
+        "D2": "Cites ADR-030, ADR-046, ADR-047, VW-409/425/426, Kubernetes NetworkPolicy spec, Cilium FQDN docs with URL, Monzo egress-operator with URL. Only GT reference not present: the internal 'Note on issue numbers' context (VW-417/418 renumbering).",
+        "D3": "Most complete of the A-D conditions. 7 numbered sections. All 5 GT alternatives present (status quo, Squid, Cilium, Monzo, Istio). Empirical test data included. Acceptance criteria for both phases with evidence table. Consequences with risks-and-mitigations table. Key files table. Gaps vs GT: no 'Open questions for Ryan' section and no standalone 'Evidence captured during research' section (backfill outcome numbers are in Context instead).",
+        "D4": "331 lines vs GT's 239 -- 38% longer. Extra length from Evidence Sources section (3-layer provenance, ~55 lines), key files table, and risks table. All content is substantive, not padding. Every section serves a purpose.",
+        "D5": "Full ADR template compliance: vault-path frontmatter, adr field, related_adrs field, numbered sections (1-7), key files table. Proper Jira references (VW-409, VW-425, VW-426). Status shows implementation commit edc6193."
+      }
+    },
+    "D": {
+      "label": "memory, no vault (different prompt)",
+      "D1_technical_correctness": 0.5,
+      "D2_citation_of_prior_art": 0.6,
+      "D3_completeness": 0.6,
+      "D4_conciseness": 0.5,
+      "D5_pattern_adoption": 0.7,
+      "mean": 0.58,
+      "notes": {
+        "D1": "Claims OpenAI used for 'embeddings during batch processing' (GT: fact extraction via gpt-4o-mini). Says 'connection timeouts' (GT: 'Connection refused'). Places Squid in rootweaver namespace (GT: egress-proxy namespace). Resource limits 128Mi/100m differ from GT's 64Mi-256Mi/50m-500m. Claims Cilium migration takes 15-30 minutes (GT: half-day). Missing kube-router enforcement race observation entirely. Squid config includes wildcard .openai.com (GT: exact api.openai.com only).",
+        "D2": "Novel approach: cites 6 typed memory facts (4634, 2089, 4502, 3306, 4224, 2564) demonstrating platform's NetworkPolicy incident history. These are not in GT but are genuine platform evidence from a different source. Also cites ADR-030, platform guardrails, K8s atomic field transitions from MEMORY.md. Missing: ADR-046, LLD-09, Cilium FQDN docs URL, Monzo egress-operator.",
+        "D3": "Has Context (with typed memory evidence, immediate problem, systemic problem, constraints), Decision (Phase 1 Squid + Phase 2 Cilium), Consequences (positive/negative/neutral), 4 Alternatives (Cilium Now, Pin OpenAI IPs, Sidecar Envoy, Accept Risk). Missing Monzo egress-operator and Istio alternatives. No acceptance criteria section. No empirical test data. Typed memory section provides different evidence class.",
+        "D4": "187 lines, shortest condition. Allocates ~40 lines to typed memory facts not in GT, displacing GT content (acceptance criteria, empirical evidence, Monzo/Istio alternatives). Less efficient information allocation for ADR purposes.",
+        "D5": "Has vault-path frontmatter (good). Standard ADR sections. Uses jira: VW-TBD instead of actual numbers (VW-425/VW-426). Places Squid in wrong namespace (rootweaver vs egress-proxy). Missing adr and related_adrs fields."
+      }
+    },
+    "E": {
+      "label": "memory + vault (5th condition)",
+      "D1_technical_correctness": 1.0,
+      "D2_citation_of_prior_art": 1.0,
+      "D3_completeness": 1.0,
+      "D4_conciseness": 1.0,
+      "D5_pattern_adoption": 1.0,
+      "mean": 1.0,
+      "notes": {
+        "D1": "Precisely matches GT: VW-409 incident, gpt-4o-mini for fact extraction from 12 backlogged sessions with exact timing data (verbatim 5-call test). All memory-writer-policy egress ports correct (Kafka 9092, vault-postgres 5432, FalkorDB 6379, vllm-embedding 8001, OTel/Tempo 4317, kube-DNS 53). Squid in egress-proxy namespace. Image tag ubuntu/squid:5.2-22.04_beta. Resource limits 64Mi/256Mi, 50m/500m -- exact match. Correct 3-FQDN allowlist. Phase 1 commit edc6193. Novel addition: audits 7 existing pods with broad 0.0.0.0/0:443 egress rules with specific networkpolicy.yaml line numbers, demonstrating the pattern is already widespread. Backfill outcome numbers present (12/12 sessions, 107 facts, 62265 tokens, $0.0233). Zero factual errors.",
+        "D2": "Three-layer evidence provenance model: (1) Long-Term Memory -- recall_decisions, find_problems, recall_agent_context, auto_search_vault with specific search scores, hybrid_search_vault with VW-425 Jira result; (2) Vault Documents -- K8s Gap Analysis with exact path and direct quote, LLD-09, EIP Cross-Namespace Networking; (3) Codebase Verification -- 6 manifest files verified with specific line numbers. Cites ADR-030, ADR-046, ADR-047, VW-409/425/426, Kubernetes NetworkPolicy spec, Cilium FQDN docs URL, Monzo egress-operator. All GT references covered.",
+        "D3": "8 numbered sections (Context, Considered Options, Decision, Consequences, Acceptance Criteria, Evidence Sources, Open Questions, Related). All 5 GT alternatives present (status quo, Squid, Cilium, Monzo, Istio). Empirical test data with verbatim 5-call pattern. Acceptance criteria for both phases with implementation evidence table (7 criteria for Phase 1 with evidence column). Consequences with risks-and-mitigations table (4 risks with likelihood/impact/mitigation). Key files table (9 files with roles). Smoke test results (TCP_TUNNEL/200, TCP_DENIED/403). Open questions (3 forward-looking architectural questions). Backfill outcome data. Novel 7-pod existing-egress audit.",
+        "D4": "331 lines vs GT's 239 -- 38% longer. Extra content: 7-pod existing audit (~10 lines), evidence sources provenance (~30 lines), smoke test results (~5 lines), risks-and-mitigations table (~10 lines), detailed manifest inventory. All additions are substantive and improve the ADR's value for future readers. No filler or padding identified.",
+        "D5": "Full ADR template compliance: vault-path: 09-System/Architecture/ADRs, adr: ADR-048, related_adrs: [ADR-030, ADR-046]. Jira array with VW-409/425/426. Implementation status with commit SHA in Section 3 header. Key files table. Numbered sections (1-8). Smoke test evidence. Evidence provenance section. Best pattern adoption across all conditions."
+      }
+    }
+  },
+  "ranking": ["E", "C", "B", "A", "D"],
+  "e_beat_c": true,
+  "e_vs_c_delta": 0.03,
+  "e_vs_c_analysis": "E beats C on D2 (1.0 vs 0.9: E's 3-layer evidence provenance model with specific search scores and VW-425 Jira results is more comprehensive) and D3 (1.0 vs 0.95: E includes smoke test results with verbatim TCP_TUNNEL/200 and TCP_DENIED/403, the 7-pod existing-egress audit with networkpolicy.yaml line numbers, and complete backfill outcome data). Both score identically on D1 (1.0), D4 (1.0), and D5 (1.0). E's novel contribution is the Section 1.3 audit proving 7 pods already have broad egress rules -- this contextualizes the decision as platform-wide hygiene, not a one-off fix.",
+  "summary": "E (1.0) is the top scorer, achieving perfect marks across all dimensions. It matches GT precision on technical facts while adding novel analytical depth (7-pod existing-egress audit, 3-layer evidence provenance, smoke test results). C (0.97) is a close second with the same GT-accurate architecture but slightly less comprehensive citation and missing the smoke test evidence. B (0.80) and A (0.76) both suffer from the 'embeddings' factual error (claiming OpenAI was for embeddings when GT shows fact extraction via gpt-4o-mini). D (0.58) has the most errors (wrong namespace, wrong failure mode, wrong API purpose, wrong resource limits, underestimates Cilium migration time) and its typed-memory evidence methodology, while novel, displaces core ADR content."
+}

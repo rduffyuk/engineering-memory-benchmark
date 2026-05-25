@@ -1,0 +1,31 @@
+{
+  "adr": "ADR-048",
+  "judge": "gpt-4o",
+  "scored_at": "2026-05-25T09:52:03",
+  "conditions": {
+    "A": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.0,
+      "completeness": 0.5,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.2,
+      "notes": "The generated ADR lacks specific citations of prior art, such as VW-409, VW-425, VW-426, ADR-030, and ADR-046, which are present in the ground truth. Completeness is low as it misses sections like Consequences, Alternatives, and Related. The text is verbose and lacks the structured pattern seen in the ground truth, such as frontmatter, status enum, and comparison format."
+    },
+    "B": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.5,
+      "completeness": 0.833,
+      "conciseness": 0.5,
+      "pattern_adoption": 0.6,
+      "notes": "The ADR is technically correct and aligns with the ground truth. It cites some prior art but misses specific references like ADR-030 and ADR-046. Completeness is slightly lacking as it misses the 'Open questions for Ryan' section. The ADR is verbose, affecting conciseness. Pattern adoption is partial, with some elements like status enum and related links present, but lacking a clear frontmatter and comparison format."
+    },
+    "C": {
+      "technical_correctness": 1.0,
+      "citation_of_prior_art": 0.875,
+      "completeness": 1.0,
+      "conciseness": 1.0,
+      "pattern_adoption": 1.0,
+      "notes": "The ADR is technically correct, with no factual errors. It cites 7 out of 8 citable claims, missing only the Kubernetes NetworkPolicy docs. All required sections are present, and the document is concise and follows the pattern well."
+    }
+  }
+}

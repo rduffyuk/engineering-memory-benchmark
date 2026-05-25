@@ -1,0 +1,86 @@
+{
+  "adr": "ADR-043",
+  "title": "Memory System Derived-Data GDPR Position",
+  "judge": "claude-opus-4-7",
+  "judge_date": "2026-05-25",
+  "rubric_version": "1.0",
+  "dimensions": {
+    "D1_technical_correctness": "0/0.5/1.0 — Are the technical claims factually correct and aligned with the ground-truth decision, mechanism, and architecture?",
+    "D2_citation_of_prior_art": "0.0-1.0 — Does the ADR cite the regulatory sources, codebase references, and external literature present in the ground truth?",
+    "D3_completeness": "0.0-1.0 — Does the ADR cover all required sections: Context, Decision, Consequences (pos+neg+limitations), Alternatives, Validation, Revisit triggers, References?",
+    "D4_conciseness": "0/0.5/1.0 — Is the ADR well-structured without filler, redundancy, or unnecessary bulk relative to its information density?",
+    "D5_pattern_adoption": "0.0-1.0 — Does the ADR follow the project's ADR template, frontmatter conventions (vault-path, jira, related_plan), and Obsidian integration patterns?"
+  },
+  "conditions": {
+    "A": {
+      "scores": {
+        "D1_technical_correctness": 0.5,
+        "D2_citation_of_prior_art": 0.4,
+        "D3_completeness": 0.6,
+        "D4_conciseness": 0.5,
+        "D5_pattern_adoption": 0.4
+      },
+      "composite": 0.48,
+      "notes": {
+        "D1": "Correctly identifies 6 of 9 data layers (misses file_snapshots, fact_corrections as distinct). Uses deletion_log table instead of GT's tombstoned_at column on sessions. Proposes REST API deletion endpoints instead of GT's operator CLI tool. No tombstone grace period (immediate hard-delete as API contract). Missing redaction-at-insert, --immediate flag, co-location simplification argument, source JSONL non-deletion. Regulatory split (EDPB vs Hamburg) correct.",
+        "D2": "Cites Hamburg DPA, EDPB 28/2024, OWASP AISVS C08, Song & Raghunathan 2020, Carlini et al 2021, ADR-030, GDPR Articles. Missing EDPB CEF 2025, Brandur Leach, aicompetence.org, Leaky Thoughts arXiv, What Should LLMs Forget arXiv, langchain #17499, mem0.ai, Letta, Crunchy Data, ProvSQL, Milvus, EDPB DSR paper.",
+        "D3": "Has Context, Decision (5 subsections), Consequences (pos+neg), Alternatives (3). Has Implementation Requirements (not in GT). Missing Validation SQL checks, when-to-revisit triggers, open/acknowledged limitations section, decision record metadata.",
+        "D4": "156 lines. Reasonably concise but the Implementation Requirements section and verbose Core Tension add bulk. The REST API design details are over-specified for an ADR.",
+        "D5": "ADR template structure correct. Frontmatter missing vault-path, jira is null, no related_plan. No Obsidian wiki-links. Status as separate section rather than header field."
+      }
+    },
+    "B": {
+      "scores": {
+        "D1_technical_correctness": 1.0,
+        "D2_citation_of_prior_art": 0.5,
+        "D3_completeness": 0.75,
+        "D4_conciseness": 0.5,
+        "D5_pattern_adoption": 0.5
+      },
+      "composite": 0.65,
+      "notes": {
+        "D1": "Lists 9 layers matching GT closely. ON DELETE CASCADE, pgvector co-location, FalkorDB weekly reconciliation via graph-retry topic, 7-day tombstone, --immediate flag, redaction at insert, source JSONL non-deletion all present and correct. References existing code (tables.py, memory_forget.py, redactor.py). Adds 24-month retention default and RLS policy (reasonable extensions). Misdates Hamburg DPA as 'January 2024 enforcement action' (GT: July 2024 discussion paper).",
+        "D2": "Cites Hamburg DPA (wrong date), EDPB 28/2024, OWASP AISVS C08, VW-220/422/391 codebase evidence, ADR-045, EDPB Guidelines 05/2014, code files. Missing Brandur Leach, Leaky Thoughts arXiv, What Should LLMs Forget arXiv, langchain #17499, aicompetence.org, mem0.ai, Letta, Crunchy Data, ProvSQL, EDPB CEF 2025 explicitly, EDPB DSR paper.",
+        "D3": "Context (detailed with Prior Art in Codebase), Decision (6 subsections), Consequences (pos+neg), Alternatives (3), Implementation Requirements (6 items), Related section. Missing Validation SQL checks, when-to-revisit triggers, decision record metadata. Open limitations partially covered in consequences.",
+        "D4": "187 lines. The Prior Art in Codebase section is thorough but long. Implementation Requirements and 24-month retention discussion add bulk. Some redundancy between context and decision sections.",
+        "D5": "ADR template correct. Frontmatter has jira but missing vault-path and related_plan. No Obsidian wiki-links. Related section has good code file references."
+      }
+    },
+    "C": {
+      "scores": {
+        "D1_technical_correctness": 1.0,
+        "D2_citation_of_prior_art": 0.7,
+        "D3_completeness": 0.8,
+        "D4_conciseness": 1.0,
+        "D5_pattern_adoption": 0.6
+      },
+      "composite": 0.82,
+      "notes": {
+        "D1": "Lists 9 layers matching GT with precise line references to tables.py and models.py. ON DELETE CASCADE with tree diagram, pgvector co-location with explicit langchain #17499 avoidance and AGENTS.md invariant reference, FalkorDB reconciliation via CronJob + graph-retry topic, 7-day tombstone, --immediate flag, redaction at insert with specific regex patterns and arXiv:2506.15674 citation, source JSONL non-deletion, co-location simplification argument, MCP tool tombstone filter enforcement, migration file reference. Entity-level cascade out of v1 scope matches GT. No invented retention period (aligns with GT).",
+        "D2": "Cites Hamburg DPA July 2024, EDPB 28/2024, EDPB CEF 2025, OWASP AISVS C08, Brandur Leach, Leaky Thoughts arXiv:2506.15674, langchain #17499, ADR-030, GDPR Articles, Song & Raghunathan + Carlini et al in core tension, VW-391, 8 code file references, migration file. Missing aicompetence.org, What Should LLMs Forget arXiv:2507.11128, mem0.ai, Letta, Crunchy Data, ProvSQL, Milvus, EDPB DSR paper.",
+        "D3": "Context (regulatory landscape, why this matters, core tension), Decision (7 subsections matching GT), Consequences (pos+neg with entity-level limitation), Alternatives (3 well-argued), Related section (extensive). Missing Validation SQL checks, when-to-revisit triggers, decision record metadata. Open limitations woven into consequences rather than separate section.",
+        "D4": "158 lines — shorter than GT's 197 while covering equivalent ground. Well-structured with minimal redundancy. The 9-layer enumeration is detailed but essential. Alternatives are concise and well-argued. No filler sections.",
+        "D5": "ADR template correct. Frontmatter has jira (VW-391), title, status, date, type, tags. Missing vault-path and related_plan. No Obsidian wiki-links. Jira reference in header. Extensive code file references in Related section."
+      }
+    },
+    "D": {
+      "scores": {
+        "D1_technical_correctness": 0.5,
+        "D2_citation_of_prior_art": 0.3,
+        "D3_completeness": 0.6,
+        "D4_conciseness": 0.5,
+        "D5_pattern_adoption": 0.5
+      },
+      "composite": 0.48,
+      "notes": {
+        "D1": "Lists 8 layers but introduces Qdrant as memory embedding store (GT uses only pgvector co-located on row tables, not Qdrant). ON DELETE CASCADE correct with tree diagram. 7-day tombstone and --immediate flag present. FalkorDB described as synchronous purge (GT: weekly reconciliation). Mentions both code_knowledge and document_knowledge graphs. Missing: redaction at insert for assistant_thinking (not mentioned anywhere), source JSONL non-deletion, co-location simplification argument, langchain #17499 avoidance. Hamburg DPA misdated as 2023 (GT: July 2024). Cites EDPB Guidelines 05/2014 instead of EDPB Opinion 28/2024.",
+        "D2": "Cites Hamburg DPA (wrong date), EDPB Guidelines 05/2014 (different document from GT's Opinion 28/2024), OWASP AI Security Guide, VW-391, ADR-046, UK ICO, memory_forget.py, memory_tools.py. Unique 'Typed Memory Evidence' section citing actual stored facts. Missing EDPB Opinion 28/2024 (cites different EDPB document), EDPB CEF 2025, Brandur Leach, Leaky Thoughts arXiv, langchain #17499, aicompetence.org, mem0.ai, Letta, Crunchy Data, ProvSQL.",
+        "D3": "Context with Typed Memory Evidence (unique), Decision (6 subsections), Consequences (pos+neg+neutral), Alternatives (3 including crypto-shredding — unique and well-argued). Missing Validation SQL checks, when-to-revisit triggers, decision record metadata, redaction at insert, source JSONL handling.",
+        "D4": "182 lines. Typed Memory Evidence section adds unique value but also bulk. Crypto-shredding alternative is well-written but long for a rejected option. Generally structured well but some sections could be tighter.",
+        "D5": "ADR template correct. Frontmatter has jira (VW-391), title, status, date, type, tags. Has 'Deciders' in header (valid pattern). Missing vault-path and related_plan. No Obsidian wiki-links."
+      }
+    }
+  },
+  "ranking": ["C", "B", "A", "D"],
+  "summary": "Condition C scores highest (composite 0.82) due to strong technical accuracy matching the ground truth on all key mechanisms (CASCADE, co-location, tombstone, redaction, JSONL separation), the best citation coverage (Hamburg, EDPB 28/2024, CEF 2025, AISVS C08, Brandur Leach, Leaky Thoughts arXiv, langchain #17499), and the most concise delivery at 158 lines. Condition B is second (0.65) with equally strong technical correctness but weaker citations and more bulk. Conditions A and D tie at 0.48 — A misses key mechanisms (no grace period, REST API instead of CLI) while D introduces incorrect architecture (Qdrant for memory embeddings) and cites the wrong EDPB document."
+}

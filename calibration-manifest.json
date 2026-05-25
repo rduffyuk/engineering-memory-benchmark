@@ -1,0 +1,116 @@
+{
+  "version": "1.0",
+  "date": "2026-05-25",
+  "description": "15 calibration artifacts for locked rubric v1 (5 per rubric type, verdict-balanced: 2 high, 2 mediocre, 1 poor)",
+  "decision_rubric": [
+    {
+      "file": "ADR-030-Repository-Structure-for-AI-Assisted-Development.md",
+      "words": 4349,
+      "sections": 12,
+      "expected_quality": "high",
+      "rationale": "Comprehensive repo restructure ADR with detailed alternatives, consequences, and cross-references to ADR-016. Accepted and implemented."
+    },
+    {
+      "file": "ADR-046-Memory-System-Embedder-Architecture.md",
+      "words": 4999,
+      "sections": 9,
+      "expected_quality": "high",
+      "rationale": "Thorough embedder selection with benchmarks, cost analysis, and technical tradeoffs."
+    },
+    {
+      "file": "ADR-041-K3s-Pods-Dashboard.md",
+      "words": 818,
+      "sections": 6,
+      "expected_quality": "mediocre",
+      "rationale": "Short, covers basics but lacks depth in alternatives and consequences."
+    },
+    {
+      "file": "ADR-025-Trading-Intelligence-Platform.md",
+      "words": 965,
+      "sections": 6,
+      "expected_quality": "mediocre",
+      "rationale": "Speculative/aspirational ADR for a feature not yet built. Thin on constraints and implementation detail."
+    },
+    {
+      "file": "ADR-001-Linkedin-Content-Automation-Pipeline.md",
+      "words": 776,
+      "sections": 8,
+      "expected_quality": "poor",
+      "rationale": "Earliest ADR in the corpus, pre-mature format conventions. Short with minimal alternatives analysis."
+    }
+  ],
+  "incident_rubric": [
+    {
+      "file": "2026-02-17-ClickHouse-OOMKilled-Incident.md",
+      "words": 1200,
+      "sections": 11,
+      "expected_quality": "high",
+      "rationale": "Gold-standard incident report: root cause, evidence (kubectl output), timeline, metrics before/after, prevention recommendations, proposed alert rule."
+    },
+    {
+      "file": "2026-01-26-Prefect-Journal-Automation-Incident-Report.md",
+      "words": 1100,
+      "sections": 10,
+      "expected_quality": "high",
+      "rationale": "Comprehensive with timeline, root cause chain, and prevention steps."
+    },
+    {
+      "file": "2026-01-31-Alert-Storm-Debugging-Session.md",
+      "words": 900,
+      "sections": 8,
+      "expected_quality": "mediocre",
+      "rationale": "Framed as debugging session, not formal incident. Missing some standard sections."
+    },
+    {
+      "file": "2026-01-05-JIRA-Bug-RAG-Retriever.md",
+      "words": 750,
+      "sections": 7,
+      "expected_quality": "mediocre",
+      "rationale": "Bug report rather than incident report. Less structured."
+    },
+    {
+      "file": "2026-01-01-Prefect-Automation-Fixes-Summary.md",
+      "words": 900,
+      "sections": 7,
+      "expected_quality": "poor",
+      "rationale": "Fix summary, not a proper incident report. Missing root cause analysis, timeline, and prevention."
+    }
+  ],
+  "architecture_rubric": [
+    {
+      "file": "2026-02-19-225135-Hld-02-Rag-Platform.md",
+      "words": 4716,
+      "sections": 17,
+      "expected_quality": "high",
+      "rationale": "Most comprehensive HLD module. Covers components, data flows, interfaces, and non-functional requirements."
+    },
+    {
+      "file": "2026-02-19-225135-Lld-08-Operational-Runbooks.md",
+      "words": 3297,
+      "sections": 14,
+      "expected_quality": "high",
+      "rationale": "Detailed operational LLD with procedure steps, commands, and failure modes."
+    },
+    {
+      "file": "2026-02-19-225135-Hld-08-Multi-Device-Compute-Orchestration.md",
+      "words": 1437,
+      "sections": 1,
+      "expected_quality": "mediocre",
+      "rationale": "Single section despite decent word count. Reads as prose rather than structured architecture doc."
+    },
+    {
+      "file": "2026-02-19-225135-Lld-09-Network-And-Deployment.md",
+      "words": 1560,
+      "sections": 3,
+      "expected_quality": "mediocre",
+      "rationale": "Sparse sections, missing interface specifications and dependency detail."
+    },
+    {
+      "file": "2026-02-19-225135-Hld-06-Security-Architecture.md",
+      "words": 2587,
+      "sections": 1,
+      "expected_quality": "poor",
+      "rationale": "High word count but single monolithic section. No structured components, interfaces, or threat model. Reads as a narrative rather than architecture documentation."
+    }
+  ]
+}

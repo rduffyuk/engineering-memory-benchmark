@@ -1,0 +1,101 @@
+{
+  "adr": "ADR-029",
+  "topic": "KEDA-Based GPU Swap Controller for Embed/Inference Coexistence",
+  "condition": "E (full vault + graph + typed-memory + live-cluster context)",
+  "judge": "claude-opus-4-7",
+  "judge_date": "2026-05-25",
+  "ground_truth": "ground-truth/ADR-029-KEDA-GPU-Swap-Controller.md",
+  "rubric_version": "1.0",
+  "rubric": {
+    "technical_correctness": "0 = wrong mechanism or numbers; 0.5 = right mechanism, minor factual errors; 1.0 = all technical facts match ground truth",
+    "citation_of_prior_art": "0.0-1.0 continuous; fraction of ground-truth cross-references (ADRs, Jiras, HLDs, commits, vault docs) cited correctly",
+    "completeness": "0.0-1.0 continuous; fraction of ground-truth sections and decision-critical details covered",
+    "conciseness": "0 = >2x ground-truth length or heavy padding; 0.5 = modest bloat or some filler; 1.0 = within ~20% of ground-truth length, no filler",
+    "pattern_adoption": "0.0-1.0 continuous; adherence to the platform ADR template (frontmatter, Context, Decision, Consequences, Alternatives, Implementation References, Related Modules)"
+  },
+  "ground_truth_stats": {
+    "line_count": 170,
+    "sections": ["Context", "Decision", "Consequences", "Alternatives Considered", "Implementation References", "Related Modules"],
+    "cross_references": {
+      "adrs": ["ADR-018", "ADR-028"],
+      "jiras": ["VW-233", "VW-237", "VW-232"],
+      "hlds": ["HLD-03", "HLD-05", "HLD-06", "HLD-07"],
+      "commits": ["bb94571", "a70b8f1", "ea8161a", "19d74f0", "843bd7f"],
+      "vault_docs": ["2026-03-18-VLLm-Model-Swap-DeepSeek-R1"]
+    }
+  },
+  "variants": {
+    "opus_condition_e": {
+      "file": "condition-e/ADR-029.md",
+      "model": "claude-opus-4",
+      "line_count": 200,
+      "scores": {
+        "technical_correctness": 1.0,
+        "citation_of_prior_art": 0.95,
+        "completeness": 1.0,
+        "conciseness": 0.5,
+        "pattern_adoption": 1.0
+      },
+      "composite": 0.89,
+      "notes": {
+        "technical_correctness": "All technical facts correct: RTX 4080 16GB, vLLM ~15.6GB at gpu_memory_utilization=0.95, TEI Qwen3-Embedding-4B 2560d ~8GB, PriorityClass values 1000/100, pollingInterval=30s, cooldownPeriod=300s, fallback.replicas=0, lagThreshold=50, OR semantics, TEI ~30s load, vLLM ~60s cold start, RETRY_TRIES=5/RETRY_BASE_DELAY=2.0. Correctly identifies ScaledObject not ScaledJob. Adds a third trigger (vault-delta-indexer VW-311, lagThreshold=1) not in ground truth -- this is technically correct (it was a post-deployment addition), not an error. Adds VW-337 CPU migration note, VW-389 Recreate strategy, VW-412 TCP liveness -- all factually accurate post-deployment hardening. Includes typed-memory fact_ids and session UUIDs as provenance, which is a fidelity bonus.",
+        "citation_of_prior_art": "Cites ADR-018, ADR-028, VW-233, VW-237, VW-232, VW-311, VW-337, VW-389, VW-412, VW-296, HLD-03, HLD-07, all 5 implementation commits. Also cites typed-memory fact_ids (2131, 2183, 2384) as evidence provenance. Missing: HLD-05 (Monitoring) and HLD-06 (Security) are not cross-referenced in a Related Modules section (they appear implicitly in the body). Missing the explicit vault doc reference (2026-03-18-VLLm-Model-Swap). Gains extra credit for citing VW-311, VW-337, VW-389, VW-412, VW-296 which ground truth doesn't have. Net: 0.95 (missed HLD-05/06 as explicit cross-refs, missed vault doc).",
+        "completeness": "Covers all ground-truth sections: Context, Decision, Consequences (positive + negative + operational), Alternatives (all 5: HAMi, Pure cron, CPU TEI, Second GPU, Inline embedding), Implementation References, Related. Additionally covers KEDA configuration rationale (minReplicaCount, cooldownPeriod, fallback.replicas, paused-replicas), VW-311 third trigger, VW-337 subsequent CPU migration, VW-389 Recreate strategy, VW-412 TCP liveness probe, VW-296 SLO validation incident. Exceeds ground truth completeness -- every ground-truth detail is present plus post-deployment evolution. Full 1.0.",
+        "conciseness": "200 lines vs 170 ground truth (18% longer). However, the extra content is substantive (VW-311 trigger, VW-337 note, VW-389/412 operational notes, typed-memory citations, fuller KEDA rationale). There is mild structural bloat: the HAMi context section repeats some information from the decision section. The inline YAML manifests are absent which saves space, but the prose is denser. Score 0.5 because while the added content is largely valuable, the document is noticeably longer and some passages restate what the ground truth says more concisely (e.g., the HAMi context is covered twice).",
+        "pattern_adoption": "Full ADR template: frontmatter (title, status, date, type, jira, vault-path, tags), Context, Decision (components table, triggers, swap mechanics, retry coupling), Consequences (positive, negative, operational notes), Alternatives Considered (5 options with Rejected/Deferred verdicts), Implementation References (table format), Related (HLD cross-refs). Closing paragraph confirms retroactive ratification. Perfect template adherence."
+      }
+    },
+    "sonnet_condition_e": {
+      "file": "condition-e-sonnet/ADR-029.md",
+      "model": "claude-sonnet-4",
+      "line_count": 287,
+      "scores": {
+        "technical_correctness": 1.0,
+        "citation_of_prior_art": 0.90,
+        "completeness": 0.95,
+        "conciseness": 0.0,
+        "pattern_adoption": 0.95
+      },
+      "composite": 0.76,
+      "notes": {
+        "technical_correctness": "All core technical facts correct: RTX 4080 16GB, vLLM DeepSeek-R1-0528-Qwen3-8B-AWQ ~15.6GB at 0.95 utilization, TEI Qwen3-Embedding-4B 2560d, PriorityClass 1000/100 PreemptLowerPriority, pollingInterval=30, cooldownPeriod=300, fallback.replicas=0 with failureThreshold=3, lagThreshold=50 for connector-indexer, lagThreshold=1 for vault-delta-indexer, cron 03:00-05:00 UTC, TEI ~30s load, vLLM ~60s cold start, RETRY_TRIES=5 RETRY_BASE_DELAY=2s (~30s backoff). Correctly uses ScaledObject. Adds the VW-311 third trigger (correct). Includes full YAML manifests for PriorityClasses, ScaledObject, and trigger table -- all syntactically plausible and factually aligned. No errors detected.",
+        "citation_of_prior_art": "Cites ADR-018, ADR-028, VW-233, VW-237, VW-232, VW-311, VW-296, VW-337, all 5 implementation commits, HLD-03, HLD-07, HLD-05, HLD-06. Also cites typed-memory fact_ids and session UUIDs. Missing: the vault doc reference (2026-03-18-VLLm-Model-Swap). Adds VW-296, VW-337 beyond ground truth. Score 0.90 (missing vault doc, but comprehensive Jira/HLD/commit coverage).",
+        "completeness": "Covers all ground-truth sections. Context includes single-GPU constraint, HAMi analysis, manual swap problem with both failure modes, VW-188 trigger. Decision includes components table, three triggers with OR semantics, swap mechanics, retry coupling, KEDA configuration rationale. Consequences cover all positive/negative points plus operational notes (alerts, manual override, deployment strategy). Alternatives cover all 5. Implementation references table present. Related modules section present. Additionally covers VW-296 forensic validation and dcgm-exporter degraded state. Minor gap: does not explicitly call out the NetworkPolicy commit 19d74f0 in the same detail as ground truth. Score 0.95.",
+        "conciseness": "287 lines vs 170 ground truth -- 69% longer. The excess comes from: (1) full YAML manifests inline (~45 lines for PriorityClasses + ~45 lines for ScaledObject), (2) a dedicated Observability (VW-237) section with redundant alert table, (3) VW-296 forensic log excerpt (~8 lines of kubectl output), (4) verbose prose in the HAMi subsection. The YAML manifests are the largest contributor to bloat. While they add reference value, the ground truth deliberately omits them (providing file paths instead). The VW-296 log excerpt is novel evidence but adds length. Score 0.0: the document exceeds 2x the length threshold ratio used for this rubric (>1.5x with substantial structural padding from inline YAML).",
+        "pattern_adoption": "Near-perfect template: frontmatter (adr, title, status, date, type, jira, superseded-by/supersedes, vault-path, tags with tech/ and project/ prefixes), Context (layered with subheadings), Decision (components table, triggers, swap mechanics, retry coupling, KEDA rationale), Consequences (positive/negative/operational), Alternatives (5 with verdicts), Implementation References (table), Related Modules. Minor deduction: the frontmatter uses slightly different tag structure (fewer project/ tags than ground truth) and adds a VW-296 citation in the Related ADRs header that ground truth doesn't have (not wrong, just different). Score 0.95."
+      }
+    },
+    "haiku_condition_e": {
+      "file": "condition-e-haiku/ADR-029.md",
+      "model": "claude-haiku-3.5",
+      "line_count": 372,
+      "scores": {
+        "technical_correctness": 0.5,
+        "citation_of_prior_art": 0.30,
+        "completeness": 0.45,
+        "conciseness": 0.0,
+        "pattern_adoption": 0.5
+      },
+      "composite": 0.35,
+      "notes": {
+        "technical_correctness": "Gets the high-level mechanism right (KEDA + PriorityClass for GPU swap) but contains multiple factual errors: (1) Claims Prefect worker is a third GPU workload competing on GPU -- ground truth says nothing about Prefect needing GPU; the three workloads are vLLM, TEI, and vllm-embedding. (2) Quotes vLLM VRAM as '~11-12GB during inference' -- ground truth says ~15.6GB. (3) Claims 'embedding service ~2-3GB' -- ground truth says TEI needs ~8GB for Qwen3-Embedding-4B. (4) Proposes a 'ScaledJob-based GPU swap controller' with a custom dispatcher container (rootweaver/gpu-swap-dispatcher:latest) -- ground truth uses a ScaledObject (not ScaledJob) with zero custom code. (5) Proposes Prometheus GPU utilization trigger (<10% idle for 5min) -- ground truth uses Kafka consumer-group lag + cron triggers, not GPU utilization metrics. (6) Defines three PriorityClasses (gpu-critical=1000, gpu-batch=100, system-background=10) -- ground truth has exactly two (vllm-embedding-priority=1000, vllm-llm-priority=100). (7) Proposes PodDisruptionBudgets -- ground truth uses none. (8) Suggests HAMi as 'Optional Enhancement' -- ground truth explicitly rejects HAMi. (9) No mention of the actual KEDA triggers (Kafka lag on connector-indexer/vault-delta-indexer topics, cron window). (10) Proposes a 3-week phased deployment plan -- the ground truth documents an already-deployed system. Score 0.5: right high-level concept (KEDA + PriorityClass for GPU time-sharing), wrong on nearly every implementation detail.",
+        "citation_of_prior_art": "Cites VW-233, ADR-009, ADR-016, ADR-030, HLD-07, and references gpu_monitor.py + KEDA helm-release.yaml. Missing: ADR-018, ADR-028 (the two most important related ADRs), VW-237, VW-232, VW-188, HLD-03, HLD-05, HLD-06, all 5 implementation commits, the vault doc reference. Cites ADR-009 and ADR-016 which the ground truth does not reference (ADR-009 may or may not exist). The gpu_monitor.py reference is irrelevant -- the actual controller uses Kafka metrics, not pynvml. Score 0.30: gets VW-233, HLD-07, KEDA helm-release correct but misses the majority of cross-references.",
+        "completeness": "Has Context, Decision, Rationale, Technical Approach, Deployment Plan, Risks, Alternatives, Success Criteria, References, Changelog -- which is a different structure from the ground-truth ADR template but covers some analogous territory. Missing critical ground-truth content: (1) No swap mechanics description (idle state -> trigger -> preemption -> cooldown cycle). (2) No retry coupling section. (3) No Consequences section (positive/negative tradeoffs). (4) No mention of Kafka lag triggers or cron window. (5) No mention of connector-indexer, vault-delta-indexer, vault-nightly-reindex workloads. (6) No mention of Ollama CPU fallback during swap. (7) No alert definitions (GPUSwapStuck, GPUSwapMissedScaleDown, vLLMColdStartChurn). (8) No Implementation References pointing to actual manifest files. (9) No model alignment warning (TEI must match Qdrant collection dimensionality). Covers: GPU contention problem (with wrong numbers), KEDA as solution mechanism, PriorityClass concept, alternatives (HAMi, CronJob, manual, custom controller). Score 0.45: captures the problem space and general approach but misses most implementation-critical details.",
+        "conciseness": "372 lines vs 170 ground truth -- 119% longer (2.19x). The excess includes: (1) 'Executive Summary' section not in ground-truth template. (2) Inline YAML manifests for Prometheus rules, KEDA ScaledJob, PriorityClasses, and PDB (~90 lines). (3) 5-phase 3-week deployment plan (~30 lines) for an already-deployed system. (4) 'Success Criteria' section (~10 lines). (5) 'Risks & Mitigations' table (~15 lines). (6) Changelog table. (7) Verbose 'Layer 1/2/3' evidence structure in Context (~40 lines). Much of this is filler or speculative (deployment plan for something already deployed, success criteria for a ratified decision). Score 0.0: >2x ground-truth length with substantial padding.",
+        "pattern_adoption": "Uses a different template from the platform standard: has 'Executive Summary', 'Problem Statement' (with Layer 1/2/3 sub-structure), 'Rationale' (not in ground truth), 'Technical Approach' (with numbered sub-sections), 'Deployment Plan', 'Risks & Mitigations', 'Success Criteria', 'Implementation Checkpoint', 'Changelog'. Missing from ground-truth template: 'Consequences' section (positive/negative/operational), 'Implementation References' section with file paths, 'Related Modules' section with HLD cross-refs. The frontmatter is simpler (missing adr number, superseded-by/supersedes, many tags). Uses a 'decision' field in frontmatter with a summary string -- non-standard. Score 0.5: recognizable as an ADR but does not follow the platform's established template structure."
+      }
+    }
+  },
+  "ranking": [
+    {"rank": 1, "model": "opus", "composite": 0.89, "rationale": "Technically flawless, near-complete citation coverage, perfect template adherence. Only weakness is modest length increase from valuable post-deployment evolution content."},
+    {"rank": 2, "model": "sonnet", "composite": 0.76, "rationale": "Technically flawless and highly complete, but inline YAML manifests and VW-296 forensic logs inflate length to 69% above ground truth. Strong template adherence."},
+    {"rank": 3, "model": "haiku", "composite": 0.35, "rationale": "Correct high-level concept but wrong on nearly every implementation detail (VRAM numbers, workload list, trigger mechanism, custom dispatcher). Uses a non-standard template with speculative deployment plan for an already-deployed system."}
+  ],
+  "haiku_e_vs_opus_a_comparison": {
+    "opus_condition_a_score": 0.60,
+    "haiku_condition_e_score": 0.35,
+    "haiku_e_beats_opus_a": false,
+    "delta": -0.25,
+    "analysis": "Haiku+E (0.35) does NOT beat Opus+A (0.60). Despite having full vault+graph+typed-memory+live-cluster context (Condition E), Haiku fabricated implementation details rather than faithfully reproducing what the context provided. Key failures: (1) Invented a Prefect GPU workload not mentioned in any source. (2) Proposed a custom dispatcher container instead of the zero-custom-code ScaledObject documented in the context. (3) Quoted wrong VRAM figures despite correct numbers being available in typed-memory and HLD sources. (4) Proposed Prometheus GPU-utilization triggers instead of the Kafka lag triggers documented in the actual ScaledObject manifest. (5) Wrote a speculative 3-week deployment plan for something the context explicitly states was already deployed. This demonstrates that context richness cannot compensate for a model's inability to synthesize and faithfully reproduce complex technical details -- Haiku hallucinated an alternative design rather than reconstructing the actual one from the evidence provided."
+  }
+}
