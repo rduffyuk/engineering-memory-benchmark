@@ -387,4 +387,4 @@ Platform: Rootweaver (typed engineering memory on K3s). Model: Claude Opus 4.7. 
 
 *Ryan G. Duffy is a Site Reliability Engineer building AI-powered engineering tools. Rootweaver is his solo engineering-memory platform, accumulating 248 sessions of real engineering work since February 2026.*
 
-*Contact: ryanduffy.uk@gmail.com | ORCID: 0009-0009-6464-0617*
+*Contact: rduffyuk@gmail.com | ORCID: 0009-0009-6464-0617*

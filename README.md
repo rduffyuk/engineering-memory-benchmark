@@ -89,7 +89,7 @@ Artifacts. https://github.com/rduffyuk/engineering-memory-benchmark
 **Ryan G. Duffy** — SRE, AI-orchestration practitioner
 - ORCID: [0009-0009-6464-0617](https://orcid.org/0009-0009-6464-0617)
 - Blog: [rduffy.uk](https://blog.rduffy.uk)
-- Email: ryanduffy.uk@gmail.com
+- Email: rduffyuk@gmail.com
 
 ## License
 
